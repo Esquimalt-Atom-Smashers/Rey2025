@@ -1,24 +1,81 @@
 package frc.robot.subsystems.drivebase;
 
+import java.util.function.Supplier;
+
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 
 public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem<DrivebaseSubsystem.DrivebaseSubsystemStates> {
     // create transferSubsystem states here
     private DrivebaseSubsystemStates currentState = DrivebaseSubsystemStates.IDLE;
+    // left half motors
+    private final VictorSPX L1 = new VictorSPX(1);
+    private final TalonSRX L2 = new TalonSRX(2);
+    private final VictorSPX L3 = new VictorSPX(3);
+    // right half motors
+    private final VictorSPX R1 = new VictorSPX(4);
+    private final TalonSRX R2 = new TalonSRX(5);
+    private final VictorSPX R3 = new VictorSPX(6);
+
+    private final DutyCycleEncoder L2Encoder = new DutyCycleEncoder(0);
+    private final DutyCycleEncoder R2Encoder = new DutyCycleEncoder(0);
+
 
     public enum DrivebaseSubsystemStates {
         IDLE,
-        secondState,
+        MANUAL_CONTROL,
         thirdstate
     }
+    public DrivebaseSubsystem() {
+        // makes it so it starts from a known position
+        L1.configFactoryDefault(); 
+        L2.configFactoryDefault();
+        L3.configFactoryDefault();
+        R1.configFactoryDefault();
+        R2.configFactoryDefault();
+        R3.configFactoryDefault();
+
+        //inverts motors to match the left side
+        R1.setInverted(true);
+        R2.setInverted(true);
+        R3.setInverted(true);
+
+    }
+
+    public Command drive(Supplier <Double> driveSupplier, Supplier <Double> turnSupplier) {
+
+        return runOnce(()-> {
+            double drive = driveSupplier.get();
+            double turn = turnSupplier.get();
+            double leftPower = (drive + turn);
+            double rightPower = (drive - turn);
+            double max = Math.max(Math.abs(rightPower),Math.abs(leftPower));
+            if (max>1){
+                leftPower /= max;
+                rightPower /= max;
+            }
+            setMotorPowers(leftPower, rightPower);
+        });
+    }
+    private void setMotorPowers(double leftPower, double rightPower){
+
+    }
+
+
 
     @Override
     public void periodic() {
         // This runs every 20ms. Use it to act on the current state.
         switch (currentState) {
-            case secondState:
-                // Logic to move motors
+            case MANUAL_CONTROL:
+
                 break;
             case IDLE:
                 // Stop motors
