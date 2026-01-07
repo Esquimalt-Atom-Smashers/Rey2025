@@ -24,10 +24,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    if (telemetryTimer.hasElapsed(1.0)) {
-      m_robotContainer.outputTelemetry();
-      telemetryTimer.reset();
-    }
 
   }
 

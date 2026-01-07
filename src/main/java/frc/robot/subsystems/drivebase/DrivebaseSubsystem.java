@@ -3,10 +3,57 @@ package frc.robot.subsystems.drivebase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 
-public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem{
+public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem<DrivebaseSubsystem.DrivebaseSubsystemStates> {
+    // create transferSubsystem states here
+    private DrivebaseSubsystemStates currentState = DrivebaseSubsystemStates.IDLE;
+
+    public enum DrivebaseSubsystemStates {
+        IDLE,
+        secondState,
+        thirdstate
+    }
 
     @Override
-    public void outputTelemetry() {
+    public void periodic() {
+        // This runs every 20ms. Use it to act on the current state.
+        switch (currentState) {
+            case secondState:
+                // Logic to move motors
+                break;
+            case IDLE:
+                // Stop motors
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public DrivebaseSubsystemStates getState() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getState'");
+    }
+
+    @Override
+    public void setTargetState(DrivebaseSubsystemStates state) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setTargetState'");
+    }
+
+    @Override
+    public void shutdownSubsystem() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'shutdownSubsystem'");
+    }
+
+    @Override
+    public void resetSubsystem() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'resetSubsystem'");
+    }
+
+    @Override
+    public void outputTelemetry(boolean enableTelemetry) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'outputTelemetry'");
     }
@@ -16,5 +63,6 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'initializeSubsystem'");
     }
+    
 
 }

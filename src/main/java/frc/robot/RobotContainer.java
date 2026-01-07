@@ -6,8 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.subsystems.CustomSubsystem;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
@@ -45,13 +43,5 @@ public class RobotContainer{
     ledSubsystem.initializeSubsystem();
     cpRotatorSubsystem.initializeSubsystem();    
   }
-  public void outputTelemetry() {
-    intakeSubsystem.outputTelemetry();
-    transferSubsystem.outputTelemetry();
-    shooterSubsystem.outputTelemetry();
-    drivebaseSubsystem.outputTelemetry();
-    hangingSubsystem.outputTelemetry();
-    ledSubsystem.outputTelemetry();
-    cpRotatorSubsystem.outputTelemetry();    
-  }
+  
 }

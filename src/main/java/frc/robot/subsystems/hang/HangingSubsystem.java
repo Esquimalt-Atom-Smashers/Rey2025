@@ -3,10 +3,57 @@ package frc.robot.subsystems.hang;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 
-public class HangingSubsystem extends SubsystemBase implements CustomSubsystem{
+public class HangingSubsystem extends SubsystemBase implements CustomSubsystem<HangingSubsystem.HangingSubsystemStates> {
+    // create transferSubsystem states here
+    private HangingSubsystemStates currentState = HangingSubsystemStates.IDLE;
+
+    public enum HangingSubsystemStates {
+        IDLE,
+        secondState,
+        thirdstate
+    }
 
     @Override
-    public void outputTelemetry() {
+    public void periodic() {
+        // This runs every 20ms. Use it to act on the current state.
+        switch (currentState) {
+            case secondState:
+                // Logic to move motors
+                break;
+            case IDLE:
+                // Stop motors
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public HangingSubsystemStates getState() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getState'");
+    }
+
+    @Override
+    public void setTargetState(HangingSubsystemStates state) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setTargetState'");
+    }
+
+    @Override
+    public void shutdownSubsystem() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'shutdownSubsystem'");
+    }
+
+    @Override
+    public void resetSubsystem() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'resetSubsystem'");
+    }
+
+    @Override
+    public void outputTelemetry(boolean enableTelemetry) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'outputTelemetry'");
     }
