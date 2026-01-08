@@ -4,8 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
@@ -15,6 +17,7 @@ import frc.robot.subsystems.ledlights.BlinkinSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class RobotContainer{
+ 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private TransferSubsystem transferSubsystem = new TransferSubsystem();
   private ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
@@ -22,13 +25,35 @@ public class RobotContainer{
   private HangingSubsystem hangingSubsystem = new HangingSubsystem();
   private BlinkinSubsystem ledSubsystem = new BlinkinSubsystem();
   private CPRotatorSubsystem cpRotatorSubsystem = new CPRotatorSubsystem();
-
+  private final CommandXboxController xboxController = new CommandXboxController(0);
+  
   public RobotContainer() {
     configureBindings();
+      
   }
+  
+  private void configureBindings() {
 
-  private void configureBindings() {}
+      drivebaseSubsystem.setDefaultCommand(
+        
+        drivebaseSubsystem.drive(
+          () -> applyDeadzone(xboxController.getRightY(), 0.2),
+          () -> applyDeadzone(xboxController.getRightX(), 0.2)
+          )
+      ); 
+ 
+  } 
 
+  public double applyDeadzone(double value, double deadzone){
+    if (Math.abs(value) < deadzone) {
+      return 0.0;
+    } else {
+      double sign = Math.signum(value);
+      double scaledValue = (Math.abs(value) - deadzone) / (1.0 - deadzone);
+      return sign * scaledValue;
+    }
+    
+  }
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }

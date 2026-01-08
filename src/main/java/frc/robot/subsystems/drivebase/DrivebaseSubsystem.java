@@ -2,6 +2,7 @@ package frc.robot.subsystems.drivebase;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -24,9 +25,10 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
     private final TalonSRX R2 = new TalonSRX(5);
     private final VictorSPX R3 = new VictorSPX(6);
 
-    private final DutyCycleEncoder L2Encoder = new DutyCycleEncoder(0);
-    private final DutyCycleEncoder R2Encoder = new DutyCycleEncoder(0);
+    private  DutyCycleEncoder L2Encoder;
+    private  DutyCycleEncoder R2Encoder;
 
+    private double powerLimiter = 0.1;
 
     public enum DrivebaseSubsystemStates {
         IDLE,
@@ -47,11 +49,15 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
         R2.setInverted(true);
         R3.setInverted(true);
 
+        L2Encoder = new DutyCycleEncoder(0);
+        R2Encoder = new DutyCycleEncoder(1);
     }
 
     public Command drive(Supplier <Double> driveSupplier, Supplier <Double> turnSupplier) {
 
-        return runOnce(()-> {
+        return run(()-> {
+            
+            currentState = DrivebaseSubsystemStates.MANUAL_CONTROL;
             double drive = driveSupplier.get();
             double turn = turnSupplier.get();
             double leftPower = (drive + turn);
@@ -65,8 +71,15 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
         });
     }
     private void setMotorPowers(double leftPower, double rightPower){
-
+        
+        L1.set(ControlMode.PercentOutput, leftPower * powerLimiter);
+        L2.set(ControlMode.PercentOutput, leftPower * powerLimiter);
+        L3.set(ControlMode.PercentOutput, leftPower * powerLimiter);
+        R1.set(ControlMode.PercentOutput, rightPower * powerLimiter);
+        R2.set(ControlMode.PercentOutput, rightPower * powerLimiter);
+        R3.set(ControlMode.PercentOutput, rightPower * powerLimiter);
     }
+
 
 
 
@@ -78,6 +91,12 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
 
                 break;
             case IDLE:
+                L1.set(ControlMode.PercentOutput, 0);
+                L2.set(ControlMode.PercentOutput, 0);
+                L3.set(ControlMode.PercentOutput, 0);
+                R1.set(ControlMode.PercentOutput, 0);
+                R2.set(ControlMode.PercentOutput, 0);
+                R3.set(ControlMode.PercentOutput, 0);
                 // Stop motors
                 break;
             default:
