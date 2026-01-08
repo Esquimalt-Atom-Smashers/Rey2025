@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
@@ -15,6 +16,11 @@ import frc.robot.subsystems.ledlights.BlinkinSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class RobotContainer{
+  
+  // Replace with CommandPS4Controller or CommandJoystick if needed
+  private final CommandXboxController m_driverController =
+      new CommandXboxController(0);
+
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private TransferSubsystem transferSubsystem = new TransferSubsystem();
   private ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
@@ -27,7 +33,10 @@ public class RobotContainer{
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    m_driverController.x().whileTrue(transferSubsystem.setMotorVoltageCommand(1));
+    m_driverController.y().whileTrue(transferSubsystem.setMotorVoltageCommand(0));
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
