@@ -1,5 +1,6 @@
 package frc.robot.subsystems.balltransfer;
 
+import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -17,34 +18,34 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
     public enum TransferSubsystemStates {
         IDLE,
         TRANSFER_BALLS,
-        SHUFFLE_BALLS
+        EJECT_BALLS,
+        SHUFFLE_BALLS,
+        MANUAL_OVERRIDE
     }
     
     private final VictorSPX transferMotor = new VictorSPX(11);
-    private Timer printTimer = new Timer();
+    private final Timer telemetryTimer = new Timer();
 
     @Override
     public void periodic() {
         // This runs every 20ms. Use it to act on the current state.
         switch (currentState) {
             case TRANSFER_BALLS:
-                // Logic to move motors
+                setVoltage(0.2);
+                break;
+            case EJECT_BALLS:
+                setVoltage(-0.2);
+            case SHUFFLE_BALLS:
+                // shuffle balls
                 break;
             case IDLE:
-                // Stop motors
+                setVoltage(0);
+                break;
+            case MANUAL_OVERRIDE:
                 break;
             default:
                 break;
         }
-    }
-
-    public TransferSubsystem() {
-        // set the motor to factory default to start from a known state
-        transferMotor.configFactoryDefault();
-        
-        // can reverse motor direction if needed
-        transferMotor.setInverted(true);
-        printTimer.start();
     }
 
     public Command setMotorVoltageCommand(double power) {
@@ -57,8 +58,26 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
 
     @Override
     public TransferSubsystemStates getState() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getState'");
+        return currentState;
+    }
+
+    public Command transferBalls() {
+        return runOnce((() -> { setTargetState(TransferSubsystemStates.TRANSFER_BALLS); } ));
+    }
+
+    public Command ejectBalls() {
+        return runOnce((() -> { setTargetState(TransferSubsystemStates.EJECT_BALLS); } ));
+    }
+
+    public Command idle() {
+        return runOnce((() -> { setTargetState(TransferSubsystemStates.IDLE); } ));
+    }
+
+    public Command manualOveride(double voltage) {
+        return runOnce((() -> { 
+            setTargetState(TransferSubsystemStates.MANUAL_OVERRIDE);
+            setVoltage(voltage);
+         } ));
     }
 
     @Override
@@ -68,8 +87,7 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
 
     @Override
     public void shutdownSubsystem() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'shutdownSubsystem'");
+        setVoltage(0);
     }
 
     @Override
@@ -80,14 +98,25 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
 
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'outputTelemetry'");
+        if (!enableTelemetry)
+            return;
+
+        if (telemetryTimer.hasElapsed(1)) {
+            System.out.println("Transfer Subsystem");
+
+            telemetryTimer.reset();
+        }
     }
 
     @Override
     public void initializeSubsystem() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'initializeSubsystem'");
+        telemetryTimer.start();
+
+        // set the motor to factory default to start from a known state
+        transferMotor.configFactoryDefault();
+        
+        // can reverse motor direction if needed
+        transferMotor.setInverted(true);
     }
 
 }

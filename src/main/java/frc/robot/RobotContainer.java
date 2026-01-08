@@ -18,7 +18,7 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 public class RobotContainer{
   
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
+  private final CommandXboxController driverController =
       new CommandXboxController(0);
 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
@@ -30,12 +30,16 @@ public class RobotContainer{
   private CPRotatorSubsystem cpRotatorSubsystem = new CPRotatorSubsystem();
 
   public RobotContainer() {
+    transferSubsystem.initializeSubsystem();
     configureBindings();
   }
 
   private void configureBindings() {
-    m_driverController.x().whileTrue(transferSubsystem.setMotorVoltageCommand(1));
-    m_driverController.y().whileTrue(transferSubsystem.setMotorVoltageCommand(0));
+    driverController.a().onTrue(transferSubsystem.ejectBalls());
+    driverController.b().onTrue(transferSubsystem.transferBalls());
+    driverController.x().onTrue(transferSubsystem.idle());
+    driverController.y().onTrue(transferSubsystem.manualOveride(0.4));
+
   }
 
   public Command getAutonomousCommand() {
