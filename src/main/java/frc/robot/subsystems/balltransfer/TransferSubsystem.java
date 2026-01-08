@@ -1,9 +1,6 @@
 package frc.robot.subsystems.balltransfer;
 
-import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -28,24 +25,7 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
 
     @Override
     public void periodic() {
-        // This runs every 20ms. Use it to act on the current state.
-        switch (currentState) {
-            case TRANSFER_BALLS:
-                setVoltage(0.2);
-                break;
-            case EJECT_BALLS:
-                setVoltage(-0.2);
-            case SHUFFLE_BALLS:
-                // shuffle balls
-                break;
-            case IDLE:
-                setVoltage(0);
-                break;
-            case MANUAL_OVERRIDE:
-                break;
-            default:
-                break;
-        }
+        outputTelemetry(true);
     }
 
     public Command setMotorVoltageCommand(double power) {
@@ -62,15 +42,24 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
     }
 
     public Command transferBalls() {
-        return runOnce((() -> { setTargetState(TransferSubsystemStates.TRANSFER_BALLS); } ));
+        return runOnce((() -> { 
+            setTargetState(TransferSubsystemStates.TRANSFER_BALLS); 
+            setVoltage(0.2);
+        } ));
     }
 
     public Command ejectBalls() {
-        return runOnce((() -> { setTargetState(TransferSubsystemStates.EJECT_BALLS); } ));
+        return runOnce((() -> { 
+            setTargetState(TransferSubsystemStates.EJECT_BALLS);
+            setVoltage(-0.2);
+         } ));
     }
 
     public Command idle() {
-        return runOnce((() -> { setTargetState(TransferSubsystemStates.IDLE); } ));
+        return runOnce((() -> { 
+            setTargetState(TransferSubsystemStates.IDLE);
+            setVoltage(0);
+         } ));
     }
 
     public Command manualOveride(double voltage) {
