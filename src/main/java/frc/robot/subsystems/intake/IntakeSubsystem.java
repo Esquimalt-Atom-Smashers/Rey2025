@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
+import frc.robot.subsystems.PhoenixIDConstants;
 
 public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<IntakeSubsystem.IntakeMotorState>{
     // create transferSubsystem states here
@@ -22,7 +23,7 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
     }
     private final double baseMotorSpeed = 0.4;
 
-    private final VictorSPX transferMotor = new VictorSPX(10);
+    private final VictorSPX intakeMotor = new VictorSPX(PhoenixIDConstants.INTAKE);
     private final Timer telemetryTimer = new Timer();
 
     @Override
@@ -35,7 +36,7 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
     }
 
     private void setVoltage(double power) {
-        transferMotor.set(ControlMode.PercentOutput, power);
+        intakeMotor.set(ControlMode.PercentOutput, power);
     }
 
     private void setPneumaticControl(double power) {
@@ -108,9 +109,9 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
         telemetryTimer.start();
 
         // set the motor to factory default to start from a known state
-        transferMotor.configFactoryDefault();
+        intakeMotor.configFactoryDefault();
         
         // can reverse motor direction if needed
-        transferMotor.setInverted(false);
+        intakeMotor.setInverted(false);
     }
 }

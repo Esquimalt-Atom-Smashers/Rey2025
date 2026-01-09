@@ -2,6 +2,7 @@ package frc.robot.subsystems.ledlights;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
+import frc.robot.subsystems.PhoenixIDConstants;
 
 public class BlinkinSubsystem extends SubsystemBase implements CustomSubsystem<BlinkinSubsystem.BlinkinSubsystemStates> {
     // create transferSubsystem states here

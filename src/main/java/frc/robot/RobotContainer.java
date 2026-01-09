@@ -39,10 +39,10 @@ public class RobotContainer{
   }
 
   private void configureBindings() {
-    driverController.povLeft().onTrue(shooterSubsystem.setFlywheelPowerCommand(0));
-    driverController.povDown().onTrue(shooterSubsystem.setFlywheelVelocityCommand(0.2));
-    driverController.povUp().whileTrue(shooterSubsystem.runFlywheelAtSpeedCommand(0.2));
-    driverController.povRight().onTrue(shooterSubsystem.setFlywheelPowerCommand(0.3));
+    driverController.a().onTrue(shooterSubsystem.setFlywheelPowerCommand(0));
+    driverController.b().onTrue(shooterSubsystem.setFlywheelVelocityCommand(0.2));
+    driverController.x().whileTrue(shooterSubsystem.runFlywheelAtSpeedCommand(0.2));
+    driverController.y().onTrue(shooterSubsystem.setFlywheelPowerCommand(0.3));
 
     //driverController.a().onTrue(transferSubsystem.ejectBalls());
     //driverController.b().onTrue(transferSubsystem.transferBalls());

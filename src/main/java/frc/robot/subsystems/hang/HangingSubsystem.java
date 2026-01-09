@@ -2,6 +2,7 @@ package frc.robot.subsystems.hang;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
+import frc.robot.subsystems.PhoenixIDConstants;
 
 public class HangingSubsystem extends SubsystemBase implements CustomSubsystem<HangingSubsystem.HangingSubsystemStates> {
     // create transferSubsystem states here

@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
+import frc.robot.subsystems.PhoenixIDConstants;
 
 public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<ShooterSubsystem.ShooterSubsystemStates> {
     // create transferSubsystem states here
@@ -19,7 +20,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         thirdstate
     }
 
-    private final TalonSRX flywheelMotor = new TalonSRX(7);
+    private final TalonSRX flywheelMotor = new TalonSRX(PhoenixIDConstants.FLYWHEEL);
     private final Encoder relEncoder = new Encoder(1, 2);
     private final PIDController velocityController = new PIDController(0.5, 0.0, 0.0);
 

@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
+import frc.robot.subsystems.PhoenixIDConstants;
 
 public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<TransferSubsystem.TransferSubsystemStates> {
     // create transferSubsystem states here
@@ -22,7 +23,7 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
 
     private final double baseMotorSpeed = 0.2;
     
-    private final VictorSPX transferMotor = new VictorSPX(11);
+    private final VictorSPX transferMotor = new VictorSPX(PhoenixIDConstants.BALL_TRANSFER);
     private final Timer telemetryTimer = new Timer();
 
     @Override

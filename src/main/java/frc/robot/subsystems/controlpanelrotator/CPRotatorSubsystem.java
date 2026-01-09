@@ -2,6 +2,7 @@ package frc.robot.subsystems.controlpanelrotator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
+import frc.robot.subsystems.PhoenixIDConstants;
 
 public class CPRotatorSubsystem extends SubsystemBase implements CustomSubsystem<CPRotatorSubsystem.CPRotatorSubsystemStates> {
     // create transferSubsystem states here
