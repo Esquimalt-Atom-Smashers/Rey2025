@@ -31,6 +31,7 @@ public class RobotContainer{
 
   public RobotContainer() {
     transferSubsystem.initializeSubsystem();
+    intakeSubsystem.initializeSubsystem();
     configureBindings();
   }
 
@@ -40,12 +41,15 @@ public class RobotContainer{
     driverController.x().onTrue(transferSubsystem.idle());
     driverController.y().onTrue(transferSubsystem.manualOveride(0.4));
 
+    driverController.povLeft().onTrue(intakeSubsystem.idleCommand());
+    driverController.povDown().onTrue(intakeSubsystem.outtakeCommand());
+    driverController.povUp().onTrue(intakeSubsystem.intakeCommand());
+    driverController.povRight().onTrue(intakeSubsystem.manualOverrideCommand(0.1));
   }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
   }
-
   
   public void initializeSubsystems() {
     intakeSubsystem.initializeSubsystem();
@@ -56,5 +60,4 @@ public class RobotContainer{
     ledSubsystem.initializeSubsystem();
     cpRotatorSubsystem.initializeSubsystem();    
   }
-  
 }

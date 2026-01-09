@@ -10,15 +10,17 @@ import frc.robot.subsystems.CustomSubsystem;
 
 public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<TransferSubsystem.TransferSubsystemStates> {
     // create transferSubsystem states here
-    private TransferSubsystemStates currentState = TransferSubsystemStates.IDLE;
+    private TransferSubsystemStates currentState = TransferSubsystemStates.idle;
 
     public enum TransferSubsystemStates {
-        IDLE,
-        TRANSFER_BALLS,
-        EJECT_BALLS,
-        SHUFFLE_BALLS,
-        MANUAL_OVERRIDE
+        idle,
+        transferBalls,
+        ejectBalls,
+        shuffleBalls,
+        manualOverride
     }
+
+    private final double baseMotorSpeed = 0.2;
     
     private final VictorSPX transferMotor = new VictorSPX(11);
     private final Timer telemetryTimer = new Timer();
@@ -42,31 +44,31 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
     }
 
     public Command transferBalls() {
-        return runOnce((() -> { 
-            setTargetState(TransferSubsystemStates.TRANSFER_BALLS); 
-            setVoltage(0.2);
-        } ));
+        return runOnce(() -> { 
+            setTargetState(TransferSubsystemStates.transferBalls); 
+            setVoltage(baseMotorSpeed);
+        } );
     }
 
     public Command ejectBalls() {
-        return runOnce((() -> { 
-            setTargetState(TransferSubsystemStates.EJECT_BALLS);
-            setVoltage(-0.2);
-         } ));
+        return runOnce(() -> { 
+            setTargetState(TransferSubsystemStates.ejectBalls);
+            setVoltage(-baseMotorSpeed);
+         } );
     }
 
     public Command idle() {
-        return runOnce((() -> { 
-            setTargetState(TransferSubsystemStates.IDLE);
+        return runOnce(() -> { 
+            setTargetState(TransferSubsystemStates.idle);
             setVoltage(0);
-         } ));
+         } );
     }
 
     public Command manualOveride(double voltage) {
-        return runOnce((() -> { 
-            setTargetState(TransferSubsystemStates.MANUAL_OVERRIDE);
+        return runOnce(() -> { 
+            setTargetState(TransferSubsystemStates.manualOverride);
             setVoltage(voltage);
-         } ));
+         } );
     }
 
     @Override
@@ -91,7 +93,7 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
             return;
 
         if (telemetryTimer.hasElapsed(1)) {
-            System.out.println("Transfer Subsystem");
+            System.out.println("Transfer Subsystem State: " + currentState);
 
             telemetryTimer.reset();
         }
