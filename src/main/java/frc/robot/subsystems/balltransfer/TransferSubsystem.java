@@ -64,7 +64,7 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
          } );
     }
 
-    public Command manualOveride(double voltage) {
+    public Command manualOverideCommand(double voltage) {
         return runOnce(() -> { 
             setTargetState(TransferSubsystemStates.manualOverride);
             setVoltage(voltage);
