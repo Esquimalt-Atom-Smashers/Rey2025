@@ -3,6 +3,8 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
@@ -18,6 +20,8 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     private final TalonSRX flywheelMotor = new TalonSRX(7);
+    private final Encoder relEncoder = new Encoder(1, 2);
+    private final PIDController velocityController = new PIDController(0.5, 0.0, 0.0);
 
     @Override
     public void periodic() {
@@ -40,8 +44,29 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         });
     }
 
+    public Command setFlywheelVelocityCommand(double velocity) {
+        return runOnce(() -> {
+            setFlywheelVelocity(velocity);
+        });
+    }
+
+    public Command runFlywheelAtSpeedCommand(double targetVelocity) {
+        return run(() -> {
+            runFlywheelAtSpeed(targetVelocity);
+        });
+    }
+
     private void setFlywheelPower(double power) {
         flywheelMotor.set(ControlMode.PercentOutput, power);
+    }
+
+    private void setFlywheelVelocity(double velocity) {
+        flywheelMotor.set(ControlMode.Velocity, velocity);
+    }
+
+    private void runFlywheelAtSpeed(double targetVelocity) {
+        double output = velocityController.calculate(relEncoder.getRate(), targetVelocity);
+        flywheelMotor.set(ControlMode.PercentOutput, output);
     }
 
     @Override
