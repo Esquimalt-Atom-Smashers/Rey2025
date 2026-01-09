@@ -2,13 +2,15 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 
-public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<IntakeSubsystem.IntakeMotorState> {
+public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<IntakeSubsystem.IntakeMotorState>{
     // create transferSubsystem states here
     private IntakeMotorState currentMotorState = IntakeMotorState.idle;
 
@@ -18,7 +20,6 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
         idle,
         manualOverride
     }
-
     private final double baseMotorSpeed = 0.4;
 
     private final VictorSPX transferMotor = new VictorSPX(10);
@@ -35,6 +36,10 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
 
     private void setVoltage(double power) {
         transferMotor.set(ControlMode.PercentOutput, power);
+    }
+
+    private void setPneumaticControl(double power) {
+
     }
 
     public Command manualOverrideCommand(double power) {
