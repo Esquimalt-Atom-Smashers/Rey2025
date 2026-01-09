@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.TransferIntakeIdleCommand;
+import frc.robot.commands.TransferIntakeIntakeCommand;
+import frc.robot.commands.TransferIntakeOuttakeCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
@@ -36,20 +39,19 @@ public class RobotContainer{
   }
 
   private void configureBindings() {
-    driverController.a().onTrue(shooterSubsystem.setFlywheelPowerCommand(0));
-    driverController.b().onTrue(shooterSubsystem.setFlywheelVelocityCommand(0.2));
-    driverController.x().whileTrue(shooterSubsystem.runFlywheelAtSpeedCommand(0.2));
-    driverController.y().onTrue(shooterSubsystem.setFlywheelPowerCommand(0.3));
+    driverController.povLeft().onTrue(shooterSubsystem.setFlywheelPowerCommand(0));
+    driverController.povDown().onTrue(shooterSubsystem.setFlywheelVelocityCommand(0.2));
+    driverController.povUp().whileTrue(shooterSubsystem.runFlywheelAtSpeedCommand(0.2));
+    driverController.povRight().onTrue(shooterSubsystem.setFlywheelPowerCommand(0.3));
 
     //driverController.a().onTrue(transferSubsystem.ejectBalls());
     //driverController.b().onTrue(transferSubsystem.transferBalls());
     //driverController.x().onTrue(transferSubsystem.idle());
     //driverController.y().onTrue(transferSubsystem.manualOveride(0.4));
 
-    driverController.povLeft().onTrue(intakeSubsystem.idleCommand());
-    driverController.povDown().onTrue(intakeSubsystem.outtakeCommand());
-    driverController.povUp().onTrue(intakeSubsystem.intakeCommand());
-    driverController.povRight().onTrue(intakeSubsystem.manualOverrideCommand(0.1));
+    driverController.povDown().onTrue(new TransferIntakeOuttakeCommand(transferSubsystem, intakeSubsystem));
+    driverController.povUp().onTrue(new TransferIntakeIntakeCommand(transferSubsystem, intakeSubsystem));
+    driverController.povRight().onTrue(new TransferIntakeIdleCommand(transferSubsystem, intakeSubsystem));
   }
 
   public Command getAutonomousCommand() {
