@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
@@ -12,42 +13,41 @@ import frc.robot.subsystems.PhoenixIDConstants;
 
 public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<ShooterSubsystem.ShooterSubsystemStates> {
     // create transferSubsystem states here
-    private ShooterSubsystemStates currentState = ShooterSubsystemStates.IDLE;
+    private ShooterSubsystemStates currentState = ShooterSubsystemStates.idle;
 
     public enum ShooterSubsystemStates {
-        IDLE,
-        secondState,
-        thirdstate
+        charging,
+        feeding,
+        idle
     }
 
     private final TalonSRX flywheelMotor = new TalonSRX(PhoenixIDConstants.FLYWHEEL);
-    private final Encoder relEncoder = new Encoder(1, 2);
-    private final PIDController velocityController = new PIDController(0.5, 0.0, 0.0);
+    private final Encoder flywheelEncoder = new Encoder(1, 2);
+    private final PIDController flywheelVelocityController = new PIDController(0.5, 0.0, 0.0);
+
+    private final VictorSPX feederMotor = new VictorSPX(PhoenixIDConstants.SHOOTER_FEEDER);
+
+    public final double baseFlywheelVelocity = 100;
+    public final double slowFlywheelVelocity = 80;
+    public final double fastFlywheelVelocity = 120;
+    private double currentFlywheelVelocity = baseFlywheelVelocity;
+
+    private final double feedingPower = 1;
 
     @Override
     public void periodic() {
-        // This runs every 20ms. Use it to act on the current state.
-        switch (currentState) {
-            case secondState:
-                // Logic to move motors
-                break;
-            case IDLE:
-                // Stop motors
-                break;
-            default:
-                break;
-        }
-    }
 
-    public Command setFlywheelPowerCommand(double power) {
-        return runOnce(() -> {
-            setFlywheelPower(power);
-        });
     }
 
     public Command setFlywheelVelocityCommand(double velocity) {
         return runOnce(() -> {
             setFlywheelVelocity(velocity);
+        });
+    }
+
+    public Command setFeederPowerCommand(double power) {
+        return runOnce(() -> {
+            setFeederPower(power);
         });
     }
 
@@ -57,35 +57,61 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         });
     }
 
-    private void setFlywheelPower(double power) {
-        flywheelMotor.set(ControlMode.PercentOutput, power);
+    public Command idleCommand() {
+        return runOnce(() -> {
+            setFlywheelVelocity(0);
+            setFeederPower(0);
+            setTargetState(ShooterSubsystemStates.idle);
+        });
+    }
+
+    public Command feedingCommand() {
+        return runOnce(() -> {
+            setFlywheelVelocity(currentFlywheelVelocity);
+            setFeederPower(feedingPower);
+            setTargetState(ShooterSubsystemStates.feeding);
+        });
+    }
+
+    public Command chargingCommand() {
+        return runOnce(() -> {
+            setFlywheelVelocity(currentFlywheelVelocity);
+            setFeederPower(0);
+            setTargetState(ShooterSubsystemStates.charging);
+        });
+    }
+
+    public Command setCurrentFlywheelVelocity(double velocity) {
+        return runOnce(() -> { currentFlywheelVelocity = velocity; });
     }
 
     private void setFlywheelVelocity(double velocity) {
         flywheelMotor.set(ControlMode.Velocity, velocity);
     }
 
+    private void setFeederPower(double power) {
+        feederMotor.set(ControlMode.PercentOutput, power);
+    }
+
     private void runFlywheelAtSpeed(double targetVelocity) {
-        double output = velocityController.calculate(relEncoder.getRate(), targetVelocity);
+        double output = flywheelVelocityController.calculate(flywheelEncoder.getRate(), targetVelocity);
         flywheelMotor.set(ControlMode.PercentOutput, output);
     }
 
     @Override
     public ShooterSubsystemStates getState() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getState'");
+        return currentState;
     }
 
     @Override
     public void setTargetState(ShooterSubsystemStates state) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setTargetState'");
+        currentState = state;
     }
 
     @Override
     public void shutdownSubsystem() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'shutdownSubsystem'");
+        setFeederPower(0);
+        setFlywheelVelocity(0);
     }
 
     @Override
@@ -102,10 +128,10 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     @Override
     public void initializeSubsystem() {
-        // set the motor to factory default to start from a known state
         flywheelMotor.configFactoryDefault();
+        feederMotor.configFactoryDefault();
         
-        // can reverse motor direction if needed
         flywheelMotor.setInverted(false);
+        feederMotor.setInverted(false);
     }
 }
