@@ -31,7 +31,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     private final VictorSPX feederMotor = new VictorSPX(PhoenixIDConstants.SHOOTER_FEEDER);
 
-    public final double baseFlywheelVelocity = 100;
+    public final double baseFlywheelVelocity = 400;
     public final double slowFlywheelVelocity = 80;
     public final double fastFlywheelVelocity = 120;
     private double currentFlywheelVelocity = baseFlywheelVelocity;
@@ -58,24 +58,6 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     public Command runFlywheelAtSpeedCommand(double targetVelocity) {
         return run(() -> {
             runFlywheelAtSpeed(targetVelocity);
-        });
-    }
-
-    public Command idleCommand() {
-        return runOnce(() -> {
-            idle();
-        });
-    }
-
-    public Command feedingCommand() {
-        return runOnce(() -> {
-            feeding();
-        });
-    }
-
-    public Command chargingCommand() {
-        return runOnce(() -> {
-            charging();
         });
     }
 
@@ -152,7 +134,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         feederMotor.configFactoryDefault();
         
         flywheelMotor.setInverted(false);
-        feederMotor.setInverted(false);
+        feederMotor.setInverted(true);
 
         telemetryTimer.start();
     }

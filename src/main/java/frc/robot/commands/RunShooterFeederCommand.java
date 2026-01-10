@@ -20,7 +20,7 @@ public class RunShooterFeederCommand extends Command {
   
     @Override
     public void initialize() {
-        shooterSubsystem.feedingCommand();
+        shooterSubsystem.feeding();
     }
   
     @Override
@@ -30,7 +30,7 @@ public class RunShooterFeederCommand extends Command {
   
     @Override
     public void end(boolean interrupted) {
-        shooterSubsystem.chargingCommand();
+        shooterSubsystem.charging();
     }
   
     @Override

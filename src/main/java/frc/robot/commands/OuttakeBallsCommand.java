@@ -28,10 +28,8 @@ public class OuttakeBallsCommand extends Command {
     @Override
     public void initialize() {
         System.out.println("Command running");
-        //intakeSubsystem.outtake();
-        //Commands.runOnce(() -> intakeSubsystem.outtakeCommand(), intakeSubsystem);
-        //transferSubsystem.ejectBallsCommand();
         intakeSubsystem.outtake();
+        transferSubsystem.ejectBalls();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -43,8 +41,8 @@ public class OuttakeBallsCommand extends Command {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        intakeSubsystem.idleCommand();
-        transferSubsystem.idleCommand();
+        intakeSubsystem.idle();
+        transferSubsystem.idle();
     }
   
     // Returns true when the command should end.

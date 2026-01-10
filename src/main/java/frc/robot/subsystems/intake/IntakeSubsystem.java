@@ -43,12 +43,12 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
 
     }
 
-    public void manualOverrideCommand(double power) {
+    public void manualOverride(double power) {
         setTargetState(IntakeMotorState.manualOverride);
         setVoltage(power);
     }
 
-    public void idleCommand() {
+    public void idle() {
         setTargetState(IntakeMotorState.idle);
         setVoltage(0);
     }

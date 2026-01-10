@@ -37,15 +37,15 @@ public class RobotContainer{
   public RobotContainer() {
     transferSubsystem.initializeSubsystem();
     intakeSubsystem.initializeSubsystem();
+    shooterSubsystem.initializeSubsystem();
     configureBindings();
   }
 
   private void configureBindings() {
     // -- Intake and Ball Transfer --
     driverController.a().whileTrue(new OuttakeBallsCommand(intakeSubsystem, transferSubsystem));
-    //driverController.b().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
+    driverController.b().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
 
-    //driverController.povUp().onTrue(intakeSubsystem.intake());
     // -- Shooting Controls --
 
     driverController.b().onTrue(new InstantCommand(() -> {
@@ -55,15 +55,13 @@ public class RobotContainer{
     driverController.x().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
     // Toggle shooter flywheel on/off
-    //boolean shooterRunning = shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.charging || shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.feeding;
-    //if (shooterRunning) {
-    //  driverController.y().onTrue(shooterSubsystem.idleCommand());
-    //} else {
-    //  driverController.y().onTrue(shooterSubsystem.chargingCommand());
-    //}
-    driverController.y().onTrue(shooterSubsystem.feedingCommand());
-    driverController.b().onTrue(shooterSubsystem.setFlywheelVelocityCommand(200));
-    //driverController.a().onTrue(shooterSubsystem.setFlywheelVelocityCommand(250));
+    boolean shooterRunning = shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.charging || shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.feeding;
+    if (shooterRunning) {
+      driverController.y().onTrue(new InstantCommand(() -> { shooterSubsystem.idle(); } ));
+    } else {
+      driverController.y().onTrue(new InstantCommand(() -> { shooterSubsystem.charging(); } ));
+    }
+    driverController.povUp().onTrue(shooterSubsystem.setCurrentFlywheelVelocity(300));
 
     // -- Idle all systems --
     driverController.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem));

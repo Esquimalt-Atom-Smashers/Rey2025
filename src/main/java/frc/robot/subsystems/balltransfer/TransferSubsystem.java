@@ -44,34 +44,26 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
         return currentState;
     }
 
-    public Command transferBallsCommand() {
-        return runOnce(() -> { 
-            setTargetState(TransferSubsystemStates.transferBalls); 
-            setVoltage(baseMotorSpeed);
-        } );
+    public void transferBalls() {
+        setTargetState(TransferSubsystemStates.transferBalls); 
+        setVoltage(baseMotorSpeed);
     }
 
-    public Command ejectBallsCommand() {
-        return runOnce(() -> { 
-            setTargetState(TransferSubsystemStates.ejectBalls);
-            setVoltage(-baseMotorSpeed);
-         } );
+    public void ejectBalls() {
+        setTargetState(TransferSubsystemStates.ejectBalls);
+        setVoltage(-baseMotorSpeed);
     }
 
-    public Command idleCommand() {
-        return runOnce(() -> { 
-            setTargetState(TransferSubsystemStates.idle);
-            setVoltage(0);
-         } );
+    public void idle() {
+        setTargetState(TransferSubsystemStates.idle);
+        setVoltage(0);
     }
 
-    public Command manualOverideCommand(double voltage) {
-        return runOnce(() -> { 
-            setTargetState(TransferSubsystemStates.manualOverride);
-            setVoltage(voltage);
-         } );
+    public void manualOveride(double voltage) {
+        setTargetState(TransferSubsystemStates.manualOverride);
+        setVoltage(voltage);
     }
-    
+
     @Override
     public void setTargetState(TransferSubsystemStates state) {
         currentState = state;
