@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import java.rmi.server.SocketSecurityException;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -10,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 import frc.robot.subsystems.PhoenixIDConstants;
+import edu.wpi.first.wpilibj.Timer;
 
 public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<ShooterSubsystem.ShooterSubsystemStates> {
     // create transferSubsystem states here
@@ -21,6 +24,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         idle
     }
 
+    private final Timer telemetryTimer = new Timer();
     private final TalonSRX flywheelMotor = new TalonSRX(PhoenixIDConstants.FLYWHEEL);
     private final Encoder flywheelEncoder = new Encoder(1, 2);
     private final PIDController flywheelVelocityController = new PIDController(0.5, 0.0, 0.0);
@@ -36,7 +40,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     @Override
     public void periodic() {
-
+        outputTelemetry(true);
     }
 
     public Command setFlywheelVelocityCommand(double velocity) {
@@ -122,8 +126,12 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'outputTelemetry'");
+        if (telemetryTimer.hasElapsed(1)) {
+            
+            System.out.println("Current Shooter State: " + currentState);
+
+            telemetryTimer.reset();
+        }
     }
 
     @Override
@@ -133,5 +141,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         
         flywheelMotor.setInverted(false);
         feederMotor.setInverted(false);
+
+        telemetryTimer.start();
     }
 }
