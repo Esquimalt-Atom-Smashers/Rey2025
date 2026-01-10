@@ -36,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     public final double fastFlywheelVelocity = 120;
     private double currentFlywheelVelocity = baseFlywheelVelocity;
 
-    private final double feedingPower = 1;
+    private final double feedingPower = 0.2;
 
     @Override
     public void periodic() {
@@ -63,30 +63,42 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     public Command idleCommand() {
         return runOnce(() -> {
-            setFlywheelVelocity(0);
-            setFeederPower(0);
-            setTargetState(ShooterSubsystemStates.idle);
+            idle();
         });
     }
 
     public Command feedingCommand() {
         return runOnce(() -> {
-            setFlywheelVelocity(currentFlywheelVelocity);
-            setFeederPower(feedingPower);
-            setTargetState(ShooterSubsystemStates.feeding);
+            feeding();
         });
     }
 
     public Command chargingCommand() {
         return runOnce(() -> {
-            setFlywheelVelocity(currentFlywheelVelocity);
-            setFeederPower(0);
-            setTargetState(ShooterSubsystemStates.charging);
+            charging();
         });
     }
 
     public Command setCurrentFlywheelVelocity(double velocity) {
         return runOnce(() -> { currentFlywheelVelocity = velocity; });
+    }
+
+    public void charging() {
+        setFlywheelVelocity(currentFlywheelVelocity);
+        setFeederPower(0);
+        setTargetState(ShooterSubsystemStates.charging);
+    }
+
+    public void feeding() {
+        setFlywheelVelocity(currentFlywheelVelocity);
+        setFeederPower(feedingPower);
+        setTargetState(ShooterSubsystemStates.feeding);
+    }
+
+    public void idle() {
+        setFlywheelVelocity(0);
+        setFeederPower(0);
+        setTargetState(ShooterSubsystemStates.idle);
     }
 
     private void setFlywheelVelocity(double velocity) {

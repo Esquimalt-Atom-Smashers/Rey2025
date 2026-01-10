@@ -66,9 +66,14 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
 
     public Command outtakeCommand() {
         return runOnce(() -> {
-            setTargetState(IntakeMotorState.outtaking);
-            setVoltage(-baseMotorSpeed);
+            outtake();
         });
+    }
+
+    public void outtake() {
+
+        setTargetState(IntakeMotorState.outtaking);
+        setVoltage(-baseMotorSpeed);
     }
 
     @Override

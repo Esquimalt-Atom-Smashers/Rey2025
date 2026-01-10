@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
@@ -25,10 +27,14 @@ public class OuttakeBallsCommand extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        intakeSubsystem.outtakeCommand();
-        transferSubsystem.ejectBallsCommand();
+        System.out.println("Command running");
+        //intakeSubsystem.outtake();
+        //Commands.runOnce(() -> intakeSubsystem.outtakeCommand(), intakeSubsystem);
+        //transferSubsystem.ejectBallsCommand();
+
+        new RunCommand(() -> intakeSubsystem.outtakeCommand(), intakeSubsystem);
     }
-  
+
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {

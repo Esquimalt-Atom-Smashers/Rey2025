@@ -41,21 +41,25 @@ public class RobotContainer{
 
   private void configureBindings() {
     // -- Intake and Ball Transfer --
-    driverController.leftBumper().whileTrue(new OuttakeBallsCommand(intakeSubsystem, transferSubsystem));
-    driverController.leftTrigger().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
+    driverController.a().whileTrue(new OuttakeBallsCommand(intakeSubsystem, transferSubsystem));
+    //driverController.b().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
 
+    driverController.povUp().onTrue(intakeSubsystem.intakeCommand());
     // -- Shooting Controls --
 
     // Run shooter feeder while holding
-    driverController.rightTrigger().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
+    driverController.x().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
     // Toggle shooter flywheel on/off
-    boolean shooterRunning = shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.charging || shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.feeding;
-    if (shooterRunning) {
-      driverController.rightBumper().onTrue(shooterSubsystem.idleCommand());
-    } else {
-      driverController.rightBumper().onTrue(shooterSubsystem.chargingCommand());
-    }
+    //boolean shooterRunning = shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.charging || shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.feeding;
+    //if (shooterRunning) {
+    //  driverController.y().onTrue(shooterSubsystem.idleCommand());
+    //} else {
+    //  driverController.y().onTrue(shooterSubsystem.chargingCommand());
+    //}
+    driverController.y().onTrue(shooterSubsystem.feedingCommand());
+    driverController.b().onTrue(shooterSubsystem.setFlywheelVelocityCommand(200));
+    //driverController.a().onTrue(shooterSubsystem.setFlywheelVelocityCommand(250));
 
     // -- Idle all systems --
     driverController.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem));

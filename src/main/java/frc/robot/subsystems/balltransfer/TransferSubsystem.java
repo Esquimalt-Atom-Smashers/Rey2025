@@ -71,7 +71,7 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
             setVoltage(voltage);
          } );
     }
-
+    
     @Override
     public void setTargetState(TransferSubsystemStates state) {
         currentState = state;
