@@ -43,31 +43,19 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
 
     }
 
-    public Command manualOverrideCommand(double power) {
-        return runOnce(() -> {
-            setTargetState(IntakeMotorState.manualOverride);
-            setVoltage(power);
-        });
+    public void manualOverrideCommand(double power) {
+        setTargetState(IntakeMotorState.manualOverride);
+        setVoltage(power);
     }
 
-    public Command idleCommand() {
-        return runOnce(() -> {
-            setTargetState(IntakeMotorState.idle);
-            setVoltage(0);
-        });
+    public void idleCommand() {
+        setTargetState(IntakeMotorState.idle);
+        setVoltage(0);
     }
 
-    public Command intakeCommand() {
-        return runOnce(() -> {
-            setTargetState(IntakeMotorState.intaking);
-            setVoltage(baseMotorSpeed);
-        });
-    }
-
-    public Command outtakeCommand() {
-        return runOnce(() -> {
-            outtake();
-        });
+    public void intake() {
+        setTargetState(IntakeMotorState.intaking);
+        setVoltage(baseMotorSpeed);
     }
 
     public void outtake() {

@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.IdleSubsystemsCommand;
 import frc.robot.commands.IntakeBallsCommand;
@@ -44,9 +45,12 @@ public class RobotContainer{
     driverController.a().whileTrue(new OuttakeBallsCommand(intakeSubsystem, transferSubsystem));
     //driverController.b().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
 
-    driverController.povUp().onTrue(intakeSubsystem.intakeCommand());
+    //driverController.povUp().onTrue(intakeSubsystem.intake());
     // -- Shooting Controls --
 
+    driverController.b().onTrue(new InstantCommand(() -> {
+      intakeSubsystem.intake();
+    }));
     // Run shooter feeder while holding
     driverController.x().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 

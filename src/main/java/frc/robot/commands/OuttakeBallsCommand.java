@@ -31,8 +31,7 @@ public class OuttakeBallsCommand extends Command {
         //intakeSubsystem.outtake();
         //Commands.runOnce(() -> intakeSubsystem.outtakeCommand(), intakeSubsystem);
         //transferSubsystem.ejectBallsCommand();
-
-        new RunCommand(() -> intakeSubsystem.outtakeCommand(), intakeSubsystem);
+        intakeSubsystem.outtake();
     }
 
     // Called every time the scheduler runs while the command is scheduled.

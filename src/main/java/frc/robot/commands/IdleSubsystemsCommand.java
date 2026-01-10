@@ -8,10 +8,10 @@ import frc.robot.subsystems.shooter.ShooterSubsystem;
 public class IdleSubsystemsCommand extends ParallelCommandGroup{
     
     public IdleSubsystemsCommand(TransferSubsystem transferSubsystem, IntakeSubsystem intakeSubsystem, ShooterSubsystem shooterSubsystem) {
-        this.addCommands(
-            transferSubsystem.idleCommand(),
-            intakeSubsystem.idleCommand(),
-            shooterSubsystem.idleCommand()
-        );
+        //this.addCommands(
+        //    transferSubsystem.idleCommand(),
+        //    intakeSubsystem.idleCommand(),
+        //    shooterSubsystem.idleCommand()
+        //);
     }
 }
