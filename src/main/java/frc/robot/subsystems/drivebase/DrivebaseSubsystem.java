@@ -12,18 +12,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
-
+import frc.robot.subsystems.PhoenixIDConstants;
 public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem<DrivebaseSubsystem.DrivebaseSubsystemStates> {
     // create transferSubsystem states here
     private DrivebaseSubsystemStates currentState = DrivebaseSubsystemStates.IDLE;
     // left half motors
-    private final VictorSPX L1 = new VictorSPX(1);
-    private final TalonSRX L2 = new TalonSRX(2);
-    private final VictorSPX L3 = new VictorSPX(3);
+    private final VictorSPX L1 = new VictorSPX(PhoenixIDConstants.LEFT_DRIVE_VICTOR_1);
+    private final TalonSRX L2 = new TalonSRX(PhoenixIDConstants.LEFT_DRIVE_TALON);
+    private final VictorSPX L3 = new VictorSPX(PhoenixIDConstants.LEFT_DRIVE_VICTOR_2);
     // right half motors
-    private final VictorSPX R1 = new VictorSPX(4);
-    private final TalonSRX R2 = new TalonSRX(5);
-    private final VictorSPX R3 = new VictorSPX(6);
+    private final VictorSPX R1 = new VictorSPX(PhoenixIDConstants.RIGHT_DRIVE_VICTOR_1);
+    private final TalonSRX R2 = new TalonSRX(PhoenixIDConstants.RIGHT_DRIVE_TALON);
+    private final VictorSPX R3 = new VictorSPX(PhoenixIDConstants.RIGHT_DRIVE_VICTOR_2);
 
     private  DutyCycleEncoder L2Encoder;
     private  DutyCycleEncoder R2Encoder;

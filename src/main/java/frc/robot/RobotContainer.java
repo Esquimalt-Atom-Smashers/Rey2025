@@ -13,6 +13,7 @@ import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem.IntakeSubsystemStates;
 import frc.robot.subsystems.ledlights.BlinkinSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
@@ -29,7 +30,7 @@ public class RobotContainer{
   
   public RobotContainer() {
     configureBindings();
-      
+    intakeSubsystem.initializeSubsystem();
   }
   
   private void configureBindings() {
@@ -41,7 +42,9 @@ public class RobotContainer{
           () -> applyDeadzone(xboxController.getRightX(), 0.2)
           )
       ); 
- 
+      xboxController.leftBumper().onTrue(intakeSubsystem.setTargetStateCommand(IntakeSubsystemStates.INTAKING));
+      xboxController.rightBumper().onTrue(intakeSubsystem.setTargetStateCommand(IntakeSubsystemStates.OUTAKING));
+      xboxController.leftTrigger().onTrue(intakeSubsystem.setTargetStateCommand(IntakeSubsystemStates.IDLE));
   } 
 
   public double applyDeadzone(double value, double deadzone){
