@@ -43,7 +43,7 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
         return setIntakePower(-power);
     }
     
-    public Command setTargetStateCommand(IntakeSubsystemStates state) {
+    public Command setIntakeStateCommand(IntakeSubsystemStates state) {
         return runOnce(() -> { setTargetState(state); });
     }
    

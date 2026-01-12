@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.idleCommand;
+import frc.robot.commands.intakeCommand;
+import frc.robot.commands.outakeCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
@@ -29,7 +32,11 @@ public class RobotContainer{
   private final CommandXboxController xboxController = new CommandXboxController(0);
   
   public RobotContainer() {
+    //allows you to easily change the power
+    transferSubsystem.changeBallTransferPower(0.5);
+    
     configureBindings();
+    
     intakeSubsystem.initializeSubsystem();
   }
   
@@ -42,9 +49,9 @@ public class RobotContainer{
           () -> applyDeadzone(xboxController.getRightX(), 0.2)
           )
       ); 
-      xboxController.leftBumper().onTrue(intakeSubsystem.setTargetStateCommand(IntakeSubsystemStates.INTAKING));
-      xboxController.rightBumper().onTrue(intakeSubsystem.setTargetStateCommand(IntakeSubsystemStates.OUTAKING));
-      xboxController.leftTrigger().onTrue(intakeSubsystem.setTargetStateCommand(IntakeSubsystemStates.IDLE));
+      xboxController.leftBumper().onTrue(new intakeCommand(intakeSubsystem,transferSubsystem));
+      xboxController.rightBumper().onTrue(new outakeCommand(intakeSubsystem, transferSubsystem));
+      xboxController.x().onTrue(new idleCommand(intakeSubsystem, transferSubsystem));
   } 
 
   public double applyDeadzone(double value, double deadzone){
