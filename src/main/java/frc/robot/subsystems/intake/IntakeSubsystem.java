@@ -4,23 +4,21 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Timer;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 import frc.robot.subsystems.PhoenixIDConstants;
 
-public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<IntakeSubsystem.IntakeMotorState>{
+public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<IntakeSubsystem.IntakeSubsystemStates>{
     // create transferSubsystem states here
-    private IntakeMotorState currentMotorState = IntakeMotorState.idle;
+    private IntakeSubsystemStates currentState = IntakeSubsystemStates.IDLE;
+    private IntakeSubsystemStates targetState = IntakeSubsystemStates.IDLE;
 
-    public enum IntakeMotorState {
-        intaking,
-        outtaking,
-        idle,
-        manualOverride
+    public enum IntakeSubsystemStates {
+        INTAKING,
+        OUTTAKING,
+        IDLE
     }
     private final double baseMotorSpeed = 0.4;
 
@@ -30,6 +28,41 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
     @Override
     public void periodic() {
         outputTelemetry(true);
+
+        if (targetState != currentState) {
+            switch (currentState) {
+                case IDLE:
+                    if (targetState == IntakeSubsystemStates.OUTTAKING) {
+                        outtakeIntake();
+                        setCurrentState(IntakeSubsystemStates.OUTTAKING);
+                    }
+                    else if (targetState == IntakeSubsystemStates.INTAKING) {
+                        intakeIntake();
+                        setCurrentState(IntakeSubsystemStates.INTAKING);
+                    }
+                    break;
+                case OUTTAKING:
+                    if (targetState == IntakeSubsystemStates.IDLE) {
+                        idleIntake();
+                        setCurrentState(IntakeSubsystemStates.IDLE);
+                    } 
+                    else if (targetState == IntakeSubsystemStates.INTAKING) {
+                        intakeIntake();
+                        setCurrentState(IntakeSubsystemStates.INTAKING);
+                    }
+                    break;
+                case INTAKING:
+                    if (targetState == IntakeSubsystemStates.IDLE) {
+                        idleIntake();
+                        setCurrentState(IntakeSubsystemStates.IDLE);
+                    }
+                    else if (targetState == IntakeSubsystemStates.OUTTAKING) {
+                        outtakeIntake();
+                        setCurrentState(IntakeSubsystemStates.OUTTAKING);
+                    }
+                    break;
+            }
+        }
     }
 
     public Command setMotorVoltageCommand(double power) {
@@ -40,38 +73,30 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
         intakeMotor.set(ControlMode.PercentOutput, power);
     }
 
-    private void setPneumaticControl(double power) {
-
-    }
-
-    public void manualOverride(double power) {
-        setTargetState(IntakeMotorState.manualOverride);
-        setVoltage(power);
-    }
-
-    public void idle() {
-        setTargetState(IntakeMotorState.idle);
+    private void idleIntake() {
         setVoltage(0);
     }
 
-    public void intake() {
-        setTargetState(IntakeMotorState.intaking);
-        setVoltage(baseMotorSpeed);
-    }
-
-    public void outtake() {
-        setTargetState(IntakeMotorState.outtaking);
+    private void outtakeIntake() {
         setVoltage(-baseMotorSpeed);
     }
 
-    @Override
-    public IntakeMotorState getState() {
-        return currentMotorState;
+    private void intakeIntake() {
+        setVoltage(baseMotorSpeed);
+    }
+
+    private void setCurrentState(IntakeSubsystemStates state) {
+        currentState = state;
     }
 
     @Override
-    public void setTargetState(IntakeMotorState state) {
-        currentMotorState = state;
+    public IntakeSubsystemStates getState() {
+        return currentState;
+    }
+
+    @Override
+    public void setTargetState(IntakeSubsystemStates state) {
+        targetState = state;
     }
 
     @Override
@@ -88,10 +113,10 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
         if (!enableTelemetry)
-        return;
+            return;
 
         if (telemetryTimer.hasElapsed(1)) {
-            System.out.println("Intake Subsystem Motor State: " + currentMotorState);
+            System.out.println("Intake Subsystem Motor State: " + currentState);
 
             telemetryTimer.reset();
         }

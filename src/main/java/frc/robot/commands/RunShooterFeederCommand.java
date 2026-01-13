@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterSubsystemStates;
 
 /** An example command that uses an example subsystem. */
 public class RunShooterFeederCommand extends Command {
@@ -20,7 +21,7 @@ public class RunShooterFeederCommand extends Command {
   
     @Override
     public void initialize() {
-        shooterSubsystem.enterShootState();
+        shooterSubsystem.setTargetState(ShooterSubsystem.ShooterSubsystemStates.SHOOTING);
     }
   
     @Override
@@ -30,7 +31,7 @@ public class RunShooterFeederCommand extends Command {
   
     @Override
     public void end(boolean interrupted) {
-        shooterSubsystem.startFlywheel();
+        shooterSubsystem.setTargetState(ShooterSubsystemStates.CHARGED);
     }
   
     @Override

@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterSubsystemStates;
 
 /** An example command that uses an example subsystem. */
 public class ToggleShooterChargingCommand extends Command {
@@ -20,8 +21,11 @@ public class ToggleShooterChargingCommand extends Command {
   
     @Override
     public void initialize() {
-        if (shooterSubsystem.getState() == shoo)
-        shooterSubsystem.enterShootState();
+        if (shooterSubsystem.getState() != ShooterSubsystemStates.CHARGED) {
+            shooterSubsystem.setTargetState(ShooterSubsystemStates.CHARGED);
+        } else {
+            shooterSubsystem.setTargetState(ShooterSubsystemStates.IDLE);
+        }
     }
   
     @Override

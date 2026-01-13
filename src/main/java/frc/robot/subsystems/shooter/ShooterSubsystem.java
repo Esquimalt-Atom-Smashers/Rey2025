@@ -1,19 +1,16 @@
 package frc.robot.subsystems.shooter;
 
-import java.rmi.server.SocketSecurityException;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 import frc.robot.subsystems.PhoenixIDConstants;
-import edu.wpi.first.wpilibj.Timer;
 
 public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<ShooterSubsystem.ShooterSubsystemStates> {
     private final double TOLERANCE = 400;
@@ -35,10 +32,10 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     private final VictorSPX feederMotor = new VictorSPX(PhoenixIDConstants.SHOOTER_FEEDER);
 
-    public final double baseFlywheelVelocity = 600;
-    public final double slowFlywheelVelocity = 300;
-    public final double fastFlywheelVelocity = 1000;
-    private double currentFlywheelVelocity = baseFlywheelVelocity;
+    public static final double DEFAULT_FLYWHEEL_VELOCITY = 600;
+    public static final double SLOW_FLYWHEEL_VELOCITY = 300;
+    public static final double FAST_FLYWHEEL_VELOCITY = 1000;
+    private double currentFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
 
     // Flywheel velocity setup
     double maxRPM = 2000;
@@ -53,49 +50,60 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         if (targetState != currentState) {
             switch (currentState) {
                 case IDLE: //for all other states we want to start the flywheel and move to the charging state
-                    startFlywheel();
+
+                    powerFlywheel();
                     currentState = ShooterSubsystemStates.CHARGING;
                     break;
+
                 case CHARGING:
+
                     if (targetState == ShooterSubsystemStates.IDLE) {
-                        enterIdleState();
-                        currentState = ShooterSubsystemStates.IDLE;
-                    } else if (targetState == ShooterSubsystemStates.CHARGED) {
+                        idleShootingSystem();
+                        setCurrentState(ShooterSubsystemStates.IDLE);
+                    } 
+                    else if (targetState == ShooterSubsystemStates.CHARGED) {
+                        
                         if (atSpeed()) {
-                           currentState = ShooterSubsystemStates.CHARGED;
+                            setCurrentState(ShooterSubsystemStates.CHARGED);
                         }
-                    }
+                    } 
                     else if (targetState == ShooterSubsystemStates.SHOOTING) {
+                        
                         if (atSpeed()){
-                            enterShootState();
-                            currentState = ShooterSubsystemStates.SHOOTING;
+                            powerShootingSystem();
+                            setCurrentState(ShooterSubsystemStates.SHOOTING);
                         }
                     }
                     break;
+
                 case CHARGED:
+
                     if (targetState == ShooterSubsystemStates.IDLE) {
-                        enterIdleState();
-                        currentState = ShooterSubsystemStates.IDLE;
-                    } else if (!atSpeed()) {
-                        currentState = ShooterSubsystemStates.CHARGING;
-                    } else if (targetState == ShooterSubsystemStates.SHOOTING) {
-                        enterShootState();
-                        currentState = ShooterSubsystemStates.SHOOTING;
+                        idleShootingSystem();
+                        setCurrentState(ShooterSubsystemStates.IDLE);
+                    } 
+                    else if (!atSpeed()) {
+                        setCurrentState(ShooterSubsystemStates.CHARGING);
+                    } 
+                    else if (targetState == ShooterSubsystemStates.SHOOTING) {
+                        powerShootingSystem();
+                        setCurrentState(ShooterSubsystemStates.SHOOTING);
                     }
                     break;
+
                 case SHOOTING:
                     
                     if (targetState == ShooterSubsystemStates.IDLE) {
-                        enterIdleState();
-                        currentState = ShooterSubsystemStates.IDLE;
-                    } else if (!atSpeed()){
-                        currentState = ShooterSubsystemStates.CHARGING;
-                    
-                    } else if (targetState == ShooterSubsystemStates.CHARGING ||
-                                targetState == ShooterSubsystemStates.CHARGED) {
-                        //disable feedmotor
-                        //return to charging state
-                        
+                        idleShootingSystem();
+                        setCurrentState(ShooterSubsystemStates.IDLE);
+                    } 
+                    else if (!atSpeed()){
+                        setCurrentState(ShooterSubsystemStates.CHARGING);
+                    } 
+                    else if (targetState == ShooterSubsystemStates.CHARGING ||
+                             targetState == ShooterSubsystemStates.CHARGED) {
+                        idleFeeder();
+                        setCurrentState(ShooterSubsystemStates.CHARGING);
                     }
                     break;
             }   
@@ -109,31 +117,35 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         });
     }
 
-    public Command setFeederPowerCommand(double power) {
-        return runOnce(() -> {
-            setFeederPower(power);
-        });
-    }
-
     public Command setTargetFlywheelVelocity(double velocity) {
         return runOnce(() -> { setFlywheelVelocity(velocity); 
-        setTargetState(ShooterSubsystemStates.CHARGED);; });
+        setTargetState(ShooterSubsystemStates.CHARGED); });
     }
-
-    private void startFlywheel() {
-        System.out.println("Setting motor to charging");
-        setFlywheelVelocity(currentFlywheelVelocity);
-    }
-
-    private void enterShootState() {
-        setFlywheelVelocity(currentFlywheelVelocity);
-        setFeederPower(feedingPower);
-    }
-
-    private void enterIdleState() {
-        System.out.println("Setting motor to idle");
+    
+    private void idleFlywheel() {
         setFlywheelVelocity(0);
-        setFeederPower(0);
+    }
+
+    private void powerFlywheel() {
+        setFlywheelVelocity(currentFlywheelVelocity);
+    }
+
+    private void idleFeeder() {
+        setFlywheelVelocity(0);
+    }
+
+    private void powerFeeder() {
+        setFlywheelVelocity(feedingPower);
+    }
+
+    private void idleShootingSystem() {
+        idleFlywheel();
+        idleFeeder();
+    }
+
+    private void powerShootingSystem() {
+        powerFeeder();
+        powerFlywheel();
     }
 
     private boolean atSpeed() {
@@ -147,6 +159,10 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     private void setFeederPower(double power) {
         feederMotor.set(ControlMode.PercentOutput, power);
+    }
+
+    private void setCurrentState(ShooterSubsystemStates state) {
+        currentState = state;
     }
 
     @Override

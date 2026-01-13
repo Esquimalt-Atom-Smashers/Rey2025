@@ -5,9 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
+import frc.robot.subsystems.balltransfer.TransferSubsystem.TransferSubsystemStates;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /** An example command that uses an example subsystem. */
@@ -28,8 +27,8 @@ public class OuttakeBallsCommand extends Command {
     @Override
     public void initialize() {
         System.out.println("Command running");
-        intakeSubsystem.outtake();
-        transferSubsystem.ejectBalls();
+        intakeSubsystem.setTargetState(IntakeSubsystem.IntakeSubsystemStates.OUTTAKING);
+        transferSubsystem.setTargetState(TransferSubsystemStates.EJECT);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -41,8 +40,8 @@ public class OuttakeBallsCommand extends Command {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        intakeSubsystem.idle();
-        transferSubsystem.idle();
+        intakeSubsystem.setTargetState(IntakeSubsystem.IntakeSubsystemStates.IDLE);
+        transferSubsystem.setTargetState(TransferSubsystemStates.IDLE);
     }
   
     // Returns true when the command should end.

@@ -11,14 +11,14 @@ import frc.robot.subsystems.PhoenixIDConstants;
 
 public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<TransferSubsystem.TransferSubsystemStates> {
     // create transferSubsystem states here
-    private TransferSubsystemStates currentState = TransferSubsystemStates.idle;
+    private TransferSubsystemStates currentState = TransferSubsystemStates.IDLE;
+    private TransferSubsystemStates targetState = TransferSubsystemStates.IDLE;
 
     public enum TransferSubsystemStates {
-        idle,
-        transferBalls,
-        ejectBalls,
-        shuffleBalls,
-        manualOverride
+        IDLE,
+        TRANSFER,
+        EJECT,
+        SHUFFLE
     }
 
     private final double baseMotorSpeed = 0.2;
@@ -29,6 +29,53 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
     @Override
     public void periodic() {
         outputTelemetry(true);
+
+        if (targetState != currentState) {
+            switch (currentState) {
+                case IDLE:
+                    if (targetState == TransferSubsystemStates.TRANSFER) {
+                        transferBalls();
+                        setCurrentState(TransferSubsystemStates.TRANSFER);
+                    }
+                    else if (targetState == TransferSubsystemStates.EJECT) {
+                        ejectBalls();
+                        setCurrentState(TransferSubsystemStates.EJECT);
+                    }
+                    else if (targetState == TransferSubsystemStates.SHUFFLE) {
+                        // shuffly
+                    }
+                    break;
+                case TRANSFER:
+                    if (targetState == TransferSubsystemStates.IDLE) {
+                        idleTransfer();
+                        setCurrentState(TransferSubsystemStates.IDLE);
+                    }
+                    else if (targetState == TransferSubsystemStates.EJECT) {
+                        ejectBalls();
+                        setCurrentState(TransferSubsystemStates.EJECT);
+                    }
+                    else if (targetState == TransferSubsystemStates.SHUFFLE) {
+                        // shuffle
+                    }
+                    break;
+                case EJECT:
+                    if (targetState == TransferSubsystemStates.IDLE) {
+                        idleTransfer();
+                        setCurrentState(TransferSubsystemStates.IDLE);
+                    }
+                    else if (targetState == TransferSubsystemStates.TRANSFER) {
+                        transferBalls();
+                        setCurrentState(TransferSubsystemStates.TRANSFER);
+                    }
+                    else if (targetState == TransferSubsystemStates.SHUFFLE) {
+                        // shuffle
+                    }
+                    break;
+                case SHUFFLE:
+                    // too lazy to add rn
+                    break;
+            }
+        }
     }
 
     public Command setMotorVoltageCommand(double power) {
@@ -44,29 +91,25 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
         return currentState;
     }
 
-    public void transferBalls() {
-        setTargetState(TransferSubsystemStates.transferBalls); 
-        setVoltage(baseMotorSpeed);
-    }
-
-    public void ejectBalls() {
-        setTargetState(TransferSubsystemStates.ejectBalls);
-        setVoltage(-baseMotorSpeed);
-    }
-
-    public void idle() {
-        setTargetState(TransferSubsystemStates.idle);
+    private void idleTransfer() {
         setVoltage(0);
     }
 
-    public void manualOveride(double voltage) {
-        setTargetState(TransferSubsystemStates.manualOverride);
-        setVoltage(voltage);
+    private void ejectBalls() {
+        setVoltage(-baseMotorSpeed);
+    }
+
+    private void transferBalls() {
+        setVoltage(baseMotorSpeed);
+    }
+
+    private void setCurrentState(TransferSubsystemStates state) {
+        currentState = state;
     }
 
     @Override
     public void setTargetState(TransferSubsystemStates state) {
-        currentState = state;
+        targetState = state;
     }
 
     @Override

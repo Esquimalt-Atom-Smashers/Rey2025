@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
+import frc.robot.subsystems.balltransfer.TransferSubsystem.TransferSubsystemStates;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 
 /** An example command that uses an example subsystem. */
@@ -25,8 +26,8 @@ public class IntakeBallsCommand extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        intakeSubsystem.intake();
-        transferSubsystem.transferBalls();
+        intakeSubsystem.setTargetState(IntakeSubsystem.IntakeSubsystemStates.INTAKING);
+        transferSubsystem.setTargetState(TransferSubsystemStates.TRANSFER);;
     }
   
     // Called every time the scheduler runs while the command is scheduled.
@@ -38,8 +39,8 @@ public class IntakeBallsCommand extends Command {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        intakeSubsystem.idle();
-        transferSubsystem.idle();
+        intakeSubsystem.setTargetState(IntakeSubsystem.IntakeSubsystemStates.IDLE);
+        transferSubsystem.setTargetState(TransferSubsystemStates.IDLE);
     }
   
     // Returns true when the command should end.
