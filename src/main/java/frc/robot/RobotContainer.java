@@ -48,14 +48,14 @@ public class RobotContainer{
 
     // -- Shooting Controls --
 
-    driverController.b().onTrue(new InstantCommand(() -> {
-      intakeSubsystem.intake();
-    }));
+    //driverController.b().onTrue(new InstantCommand(() -> {
+    //  intakeSubsystem.intake();
+    //}));
     // Run shooter feeder while holding
     driverController.x().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
     // Toggle shooter flywheel on/off
-    boolean shooterRunning = shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.charging || shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.feeding;
+    boolean shooterRunning = (shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.charging) || (shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.feeding);
     if (shooterRunning) {
       driverController.y().onTrue(new InstantCommand(() -> { shooterSubsystem.idle(); } ));
     } else {

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -59,7 +60,6 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
     }
 
     public void outtake() {
-
         setTargetState(IntakeMotorState.outtaking);
         setVoltage(-baseMotorSpeed);
     }
@@ -103,6 +103,8 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
 
         // set the motor to factory default to start from a known state
         intakeMotor.configFactoryDefault();
+
+        intakeMotor.setNeutralMode(NeutralMode.Brake);
         
         // can reverse motor direction if needed
         intakeMotor.setInverted(false);
