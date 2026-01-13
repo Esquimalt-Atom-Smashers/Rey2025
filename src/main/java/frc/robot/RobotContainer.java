@@ -55,13 +55,13 @@ public class RobotContainer{
     driverController.x().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
     // Toggle shooter flywheel on/off
-    boolean shooterRunning = (shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.charging) || (shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.feeding);
+    boolean shooterRunning = (shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.CHARGING) || (shooterSubsystem.getState() == ShooterSubsystem.ShooterSubsystemStates.SHOOTING);
     if (shooterRunning) {
-      driverController.y().onTrue(new InstantCommand(() -> { shooterSubsystem.idle(); } ));
+      driverController.y().onTrue(new InstantCommand(() -> { shooterSubsystem.setIdleState(); } ));
     } else {
-      driverController.y().onTrue(new InstantCommand(() -> { shooterSubsystem.charging(); } ));
+      driverController.y().onTrue(new InstantCommand(() -> { shooterSubsystem.startFlywheel(); } ));
     }
-    driverController.povUp().onTrue(shooterSubsystem.setCurrentFlywheelVelocity(300));
+    driverController.povUp().onTrue(shooterSubsystem.setTargetFlywheelVelocity(300));
 
     // -- Idle all systems --
     driverController.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem));
