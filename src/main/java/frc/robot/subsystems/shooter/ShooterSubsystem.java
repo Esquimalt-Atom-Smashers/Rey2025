@@ -131,11 +131,11 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     private void idleFeeder() {
-        setFlywheelVelocity(0);
+        setFeederPower(0);
     }
 
     private void powerFeeder() {
-        setFlywheelVelocity(feedingPower);
+        setFeederPower(feedingPower);
     }
 
     private void idleShootingSystem() {
