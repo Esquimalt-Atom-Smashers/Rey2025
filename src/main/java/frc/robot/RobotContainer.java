@@ -33,7 +33,7 @@ public class RobotContainer{
   
   public RobotContainer() {
     //allows you to easily change the power
-    transferSubsystem.changeBallTransferPower(0.5);
+    //transferSubsystem.changeBallTransferPower(0.5);
     
     configureBindings();
     
@@ -52,8 +52,9 @@ public class RobotContainer{
       xboxController.leftBumper().onTrue(new intakeCommand(intakeSubsystem,transferSubsystem));
       xboxController.rightBumper().onTrue(new outakeCommand(intakeSubsystem, transferSubsystem));
       xboxController.x().onTrue(new idleCommand(intakeSubsystem, transferSubsystem));
+      xboxController.leftTrigger().onTrue(drivebaseSubsystem.slowMode());
   } 
-
+  
   public double applyDeadzone(double value, double deadzone){
     if (Math.abs(value) < deadzone) {
       return 0.0;

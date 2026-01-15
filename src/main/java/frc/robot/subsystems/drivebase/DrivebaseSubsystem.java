@@ -25,16 +25,18 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
     private final TalonSRX R2 = new TalonSRX(PhoenixIDConstants.RIGHT_DRIVE_TALON);
     private final VictorSPX R3 = new VictorSPX(PhoenixIDConstants.RIGHT_DRIVE_VICTOR_2);
 
-    private  DutyCycleEncoder L2Encoder;
-    private  DutyCycleEncoder R2Encoder;
-
+    private DutyCycleEncoder L2Encoder;
+    private DutyCycleEncoder R2Encoder;
+    private boolean slowMode = false;
     private double powerLimiter = 0.1;
-
+    private double slowModeMultiplier;
+    
     public enum DrivebaseSubsystemStates {
         IDLE,
         MANUAL_CONTROL,
-        thirdstate
+        slowMode
     }
+
     public DrivebaseSubsystem() {
         // makes it so it starts from a known position
         L1.configFactoryDefault(); 
@@ -72,17 +74,26 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
     }
     private void setMotorPowers(double leftPower, double rightPower){
         
-        L1.set(ControlMode.PercentOutput, leftPower * powerLimiter);
-        L2.set(ControlMode.PercentOutput, leftPower * powerLimiter);
-        L3.set(ControlMode.PercentOutput, leftPower * powerLimiter);
-        R1.set(ControlMode.PercentOutput, rightPower * powerLimiter);
-        R2.set(ControlMode.PercentOutput, rightPower * powerLimiter);
-        R3.set(ControlMode.PercentOutput, rightPower * powerLimiter);
+        L1.set(ControlMode.PercentOutput, leftPower * powerLimiter *slowModeMultiplier);
+        L2.set(ControlMode.PercentOutput, leftPower * powerLimiter *slowModeMultiplier);
+        L3.set(ControlMode.PercentOutput, leftPower * powerLimiter *slowModeMultiplier);
+        R1.set(ControlMode.PercentOutput, rightPower * powerLimiter *slowModeMultiplier);
+        R2.set(ControlMode.PercentOutput, rightPower * powerLimiter *slowModeMultiplier);
+        R3.set(ControlMode.PercentOutput, rightPower * powerLimiter *slowModeMultiplier);
     }
 
 
-
-
+    public Command slowMode() {
+        return runOnce(() -> {slowModeChanger();});
+    }
+    public void slowModeChanger(){
+        slowMode = !slowMode;
+        if (slowMode){
+            slowModeMultiplier = 0.25;
+        } else {
+            slowModeMultiplier = 1;
+        }
+    }
     @Override
     public void periodic() {
         // This runs every 20ms. Use it to act on the current state.

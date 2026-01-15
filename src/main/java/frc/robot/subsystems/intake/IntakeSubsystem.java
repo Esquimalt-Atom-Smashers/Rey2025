@@ -28,20 +28,6 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
     public void setTargetState(IntakeSubsystemStates state){
         currentState = state;
     }
-
-    public Command setIntakePower(double power) {
-        return runOnce(() -> {setVoltage(power);});
-    }
-
-    public Command intakeCommand(double power){
-        setTargetState(IntakeSubsystemStates.INTAKING);
-        return setIntakePower(power);
-    }
-
-    public Command outtakeCommand (double power){
-        setTargetState(IntakeSubsystemStates.OUTAKING);
-        return setIntakePower(-power);
-    }
     
     public Command setIntakeStateCommand(IntakeSubsystemStates state) {
         return runOnce(() -> { setTargetState(state); });

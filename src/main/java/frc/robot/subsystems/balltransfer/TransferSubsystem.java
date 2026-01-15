@@ -3,6 +3,7 @@ package frc.robot.subsystems.balltransfer;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
@@ -13,13 +14,14 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
     private TransferSubsystemStates currentState = TransferSubsystemStates.IDLE;
     
     private final VictorSPX ballTransferMotor = new VictorSPX(11);
-    public double intakeMotorPower;
-    public double outakeMotorPower;
+    public double intakeMotorPower = -0.5;
+    public double outakeMotorPower = 0.5;
+    private Timer telemetryTimer = new Timer();
 
-    public void changeBallTransferPower (double newPower) {
+    /*public void changeBallTransferPower (double newPower) {
         intakeMotorPower = newPower;
         outakeMotorPower = -newPower;
-    }
+    } */
 
     public void setPower(double power) {
         ballTransferMotor.set(ControlMode.PercentOutput, power);
@@ -33,13 +35,14 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
     }
 
     public Command setTransferStateCommand(TransferSubsystemStates state) {
-    return runOnce(() -> { setTargetState(currentState); });
+    return runOnce(() -> { setTargetState(state); });
     }
 
     @Override
     public void periodic() {
         // This runs every 20ms. Use it to act on the current state.
         outputTelemetry(true);
+        
         switch (currentState) {
             case TRANSFER_BALLS:
                 setPower(intakeMotorPower);
@@ -79,13 +82,20 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
 
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
-        System.out.println(getState());
+        if (!enableTelemetry){
+            return;
+        }
+        if (telemetryTimer.get() > 1){
+            System.out.println(getState());
+            telemetryTimer.reset();
+        }
     }
 
     @Override
     public void initializeSubsystem() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'initializeSubsystem'");
+        telemetryTimer.start();
+        ballTransferMotor.configFactoryDefault();
+        ballTransferMotor.setInverted(false);
     }
 
 }
