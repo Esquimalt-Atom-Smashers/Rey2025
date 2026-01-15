@@ -40,6 +40,6 @@ public class ToggleShooterChargingCommand extends Command {
   
     @Override
     public boolean isFinished() {
-      return false;
+      return true;
     }
 }
