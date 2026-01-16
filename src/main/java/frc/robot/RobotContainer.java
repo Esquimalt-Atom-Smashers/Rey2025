@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveSlowModeCommand;
 import frc.robot.commands.IdleSubsystemsCommand;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.ledlights.BlinkinSubsystem;
+import frc.robot.subsystems.shooter.AimSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class RobotContainer{
@@ -32,6 +34,7 @@ public class RobotContainer{
   private ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(() -> applyDeadzone(driverController.getLeftY()), 
                                                                          () -> applyDeadzone(driverController.getRightX()));
+  private AimSubsystem aimSubsystem = new AimSubsystem();
   private HangingSubsystem hangingSubsystem = new HangingSubsystem();
   private BlinkinSubsystem ledSubsystem = new BlinkinSubsystem();
   private CPRotatorSubsystem cpRotatorSubsystem = new CPRotatorSubsystem();
@@ -43,35 +46,37 @@ public class RobotContainer{
     intakeSubsystem.initializeSubsystem();
     shooterSubsystem.initializeSubsystem();
     drivebaseSubsystem.initializeSubsystem();
+    aimSubsystem.initializeSubsystem();
 
     configureBindings();
   }
 
   private void configureBindings() {
     // -- Intake and Ball Transfer --
-    driverController.a().whileTrue(new OuttakeBallsCommand(intakeSubsystem, transferSubsystem));
-    driverController.b().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
+    driverController.leftBumper().whileTrue(new OuttakeBallsCommand(intakeSubsystem, transferSubsystem));
+    driverController.leftTrigger().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
 
     // -- Shooting Controls --
     // Run shooter feeder while holding
-    driverController.x().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
+    driverController.rightTrigger().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
     // Toggle between charging and idle
-    driverController.y().onTrue(new ToggleShooterChargingCommand(shooterSubsystem));
+    driverController.x().onTrue(new ToggleShooterChargingCommand(shooterSubsystem));
 
     // Adjust velocity
     driverController.povUp()   .onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.FAST_FLYWHEEL_VELOCITY));
     driverController.povRight().onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.DEFAULT_FLYWHEEL_VELOCITY));
     driverController.povDown() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
 
-    // -- Drive Controls --
-    //drivebaseSubsystem.setDefaultCommand(
-    //  drivebaseSubsystem.driveCommand(
-    //    () -> applyDeadzone(driverController.getLeftY()), 
-    //    () -> applyDeadzone(driverController.getRightX())
-    //  )
-    //);
+    // Aiming panel
+    driverController.y().onTrue(new InstantCommand(() -> {
+      aimSubsystem.setAimingPanelPower(0.2);
+    }));
 
+    driverController.a().onTrue(new InstantCommand(() -> {
+      aimSubsystem.setAimingPanelPower(-0.2);
+    }));
+    // -- Drive Controls --
     driverController.rightBumper().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));
 
     // -- Idle all systems --
@@ -102,5 +107,6 @@ public class RobotContainer{
     hangingSubsystem.initializeSubsystem();
     ledSubsystem.initializeSubsystem();
     cpRotatorSubsystem.initializeSubsystem();    
+    aimSubsystem.initializeSubsystem();
   }
 }
