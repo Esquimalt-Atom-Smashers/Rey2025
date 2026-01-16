@@ -8,12 +8,10 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 import frc.robot.subsystems.PhoenixIDConstants;
-
-import edu.wpi.first.wpilibj.Timer;
 public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem<DrivebaseSubsystem.DrivebaseSubsystemStates> {
     // create transferSubsystem states here
     private DrivebaseSubsystemStates currentState = DrivebaseSubsystemStates.IDLE;
@@ -29,8 +27,8 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
     private final TalonSRX rightDriveTalon = new TalonSRX(PhoenixIDConstants.RIGHT_DRIVE_TALON);
     private final VictorSPX rightDrive2 = new VictorSPX(PhoenixIDConstants.RIGHT_DRIVE_VICTOR_2);
 
-    private Supplier<Double> driveSupplier;
-    private Supplier<Double> turnSupplier;
+    private final Supplier<Double> driveSupplier;
+    private final Supplier<Double> turnSupplier;
 
     public final double DEFAULT_SPEED = 0.3;
     public final double SLOW_SPEED = 0.1;
@@ -50,13 +48,12 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
 
     @Override
     public void periodic() {
-
         outputTelemetry(true);
 
-        drive(driveSupplier, turnSupplier);
+        drive(driveSupplier, turnSupplier, getSpeedMultiplier(useSlowMode));
     }
 
-    public void drive(Supplier<Double> driveSupplier, Supplier<Double> turnSupplier) {
+    public void drive(Supplier<Double> driveSupplier, Supplier<Double> turnSupplier, double speedMutliplier) {
         double drive = driveSupplier.get();
         double turn = turnSupplier.get();
 
@@ -67,7 +64,7 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
             turn /= max;
         }
 
-        drive(drive, turn, getSpeedMultiplier(useSlowMode));
+        drive(drive, turn, speedMutliplier);
     }
 
     private void drive(double drive, double turn, double powerMultiplier) {
@@ -90,6 +87,7 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
     private double getSpeedMultiplier(boolean slowMode) {
         return slowMode ? SLOW_SPEED : DEFAULT_SPEED;
     }
+    
     private void idleDrive() {
         setMotorPowers(0, 0);
     }
