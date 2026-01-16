@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.DriveSlowModeCommand;
 import frc.robot.commands.IdleSubsystemsCommand;
 import frc.robot.commands.IntakeBallsCommand;
 import frc.robot.commands.OuttakeBallsCommand;
@@ -29,15 +30,20 @@ public class RobotContainer{
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private TransferSubsystem transferSubsystem = new TransferSubsystem();
   private ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem();
+  private DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(() -> applyDeadzone(driverController.getLeftY()), 
+                                                                         () -> applyDeadzone(driverController.getRightX()));
   private HangingSubsystem hangingSubsystem = new HangingSubsystem();
   private BlinkinSubsystem ledSubsystem = new BlinkinSubsystem();
   private CPRotatorSubsystem cpRotatorSubsystem = new CPRotatorSubsystem();
+
+  private final double controllerDeadzone = 0.2;
 
   public RobotContainer() {
     transferSubsystem.initializeSubsystem();
     intakeSubsystem.initializeSubsystem();
     shooterSubsystem.initializeSubsystem();
+    drivebaseSubsystem.initializeSubsystem();
+
     configureBindings();
   }
 
@@ -47,7 +53,6 @@ public class RobotContainer{
     driverController.b().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
 
     // -- Shooting Controls --
-
     // Run shooter feeder while holding
     driverController.x().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
@@ -59,8 +64,30 @@ public class RobotContainer{
     driverController.povRight().onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.DEFAULT_FLYWHEEL_VELOCITY));
     driverController.povDown() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
 
+    // -- Drive Controls --
+    //drivebaseSubsystem.setDefaultCommand(
+    //  drivebaseSubsystem.driveCommand(
+    //    () -> applyDeadzone(driverController.getLeftY()), 
+    //    () -> applyDeadzone(driverController.getRightX())
+    //  )
+    //);
+
+    driverController.rightBumper().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));
+
     // -- Idle all systems --
     driverController.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem));
+  }
+
+  public double applyDeadzone(double value){
+    if (Math.abs(value) < controllerDeadzone) {
+      return 0.0;
+    } 
+    else {
+      double sign = Math.signum(value);
+      double scaledValue = (Math.abs(value) - controllerDeadzone) / (1.0 - controllerDeadzone);
+
+      return sign * scaledValue;
+    }
   }
 
   public Command getAutonomousCommand() {
