@@ -21,6 +21,7 @@ import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.ledlights.BlinkinSubsystem;
 import frc.robot.subsystems.shooter.AimSubsystem;
+import frc.robot.subsystems.shooter.AimSubsystem.AimingSubsystemStates;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class RobotContainer{
@@ -70,12 +71,17 @@ public class RobotContainer{
 
     // Aiming panel
     driverController.y().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setAimingPanelPower(0.2);
+      aimSubsystem.setTargetState(AimingSubsystemStates.AIMED);
     }));
 
     driverController.a().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setAimingPanelPower(-0.2);
+      aimSubsystem.setTargetState(AimingSubsystemStates.IDLE);
     }));
+    
+    driverController.b().onTrue(new InstantCommand(() -> {
+      aimSubsystem.setTargetPosition(5);
+    }));
+
     // -- Drive Controls --
     driverController.rightBumper().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));
 

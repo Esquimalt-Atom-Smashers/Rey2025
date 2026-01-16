@@ -3,13 +3,9 @@ package frc.robot.subsystems.shooter;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
 import frc.robot.subsystems.PhoenixIDConstants;
@@ -20,6 +16,8 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
     private AimingSubsystemStates targetState = AimingSubsystemStates.IDLE;
 
     private Timer telemetryTimer = new Timer();
+
+    private double targetPosition;
 
     public enum AimingSubsystemStates {
         IDLE,
@@ -32,10 +30,60 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
     @Override
     public void periodic() {
         outputTelemetry(true);
+
+        if (targetState != currentState) {
+            switch (currentState) {
+                case IDLE:
+                    setAimingPanelPosition(targetPosition);
+
+                    if (targetState == AimingSubsystemStates.AIMED || targetState == AimingSubsystemStates.AIMING) {
+                        currentState = AimingSubsystemStates.AIMING;
+                    }
+
+                case AIMING:
+                    if (targetState == AimingSubsystemStates.IDLE) {
+                        setAimingPanelPower(0);
+                        currentState = AimingSubsystemStates.IDLE;
+                    }
+                    else if (targetState == AimingSubsystemStates.AIMED) {
+                        if (atTargetPosition()) {
+                            currentState = AimingSubsystemStates.AIMED;
+                        }
+                    }
+                    break;
+                    
+                case AIMED:
+                    if (targetState == AimingSubsystemStates.IDLE) {
+                        setAimingPanelPower(0);
+                        currentState = AimingSubsystemStates.IDLE;
+                    } else if (!atTargetPosition()) {
+                        currentState = AimingSubsystemStates.AIMING;
+                    }
+                    break;
+                default:
+                    setTargetState(AimingSubsystemStates.IDLE);
+            }
+        }
     }
 
     public void setAimingPanelPower(double power) {
         aimingPanelRotator.set(ControlMode.PercentOutput, power);
+    }
+
+    public void setAimingPanelPosition(double position) {
+        aimingPanelRotator.set(ControlMode.Position, position);
+    }
+
+    public boolean atPosition(double position) {
+        return true; // add logic
+    }
+
+    public boolean atTargetPosition() {
+        return atPosition(targetPosition);
+    }
+
+    public void setTargetPosition(double position) {
+        targetPosition = position;
     }
 
     @Override
@@ -68,6 +116,15 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
 
     @Override
     public void initializeSubsystem() {
+        aimingPanelRotator.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
         
+        aimingPanelRotator.configFactoryDefault();
+
+        aimingPanelRotator.config_kP(0, 0.1);
+        aimingPanelRotator.config_kI(0, 0.0);
+        aimingPanelRotator.config_kD(0, 0.0);
+
+        aimingPanelRotator.setNeutralMode(NeutralMode.Brake);
+        aimingPanelRotator.setInverted(false);
     }
 }
