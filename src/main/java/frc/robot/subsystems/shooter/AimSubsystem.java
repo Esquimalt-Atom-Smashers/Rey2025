@@ -48,10 +48,12 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
                     else if (targetState == AimingSubsystemStates.AIMED) {
                         if (atTargetPosition()) {
                             currentState = AimingSubsystemStates.AIMED;
+                        } else {
+                            setAimingPanelPosition(targetPosition);
                         }
                     }
                     break;
-                    
+
                 case AIMED:
                     if (targetState == AimingSubsystemStates.IDLE) {
                         setAimingPanelPower(0);
