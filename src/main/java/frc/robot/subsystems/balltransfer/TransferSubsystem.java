@@ -28,7 +28,7 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
 
     @Override
     public void periodic() {
-        outputTelemetry(true);
+        outputTelemetry(false);
 
         if (targetState != currentState) {
             switch (currentState) {

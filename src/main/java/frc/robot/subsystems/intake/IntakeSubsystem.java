@@ -27,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
 
     @Override
     public void periodic() {
-        outputTelemetry(true);
+        outputTelemetry(false);
 
         if (targetState != currentState) {
             switch (currentState) {

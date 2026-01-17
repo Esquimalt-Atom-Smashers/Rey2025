@@ -77,7 +77,7 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
     }
 
     public boolean atPosition(double position) {
-        return true; // add logic
+        return aimingPanelRotator.getSelectedSensorPosition() >= targetPosition;
     }
 
     public boolean atTargetPosition() {
@@ -112,6 +112,8 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
         if (telemetryTimer.hasElapsed(1)) {
+            System.out.println("Aiming panel target position: " + targetPosition + "/" + aimingPanelRotator.getSelectedSensorPosition() + " (At pos: " + atTargetPosition() + ")");
+            System.out.println("Current aiming panel state " + currentState);
             telemetryTimer.reset();
         }
     }

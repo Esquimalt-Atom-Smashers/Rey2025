@@ -47,7 +47,8 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     @Override
     public void periodic() {
-        outputTelemetry(true);
+        outputTelemetry(false);
+        
         if (targetState != currentState) {
             switch (currentState) {
                 case IDLE: //for all other states we want to start the flywheel and move to the charging state

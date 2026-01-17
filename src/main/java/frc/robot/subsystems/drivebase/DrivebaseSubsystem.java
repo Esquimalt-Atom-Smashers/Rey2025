@@ -48,7 +48,7 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
 
     @Override
     public void periodic() {
-        outputTelemetry(true);
+        outputTelemetry(false);
 
         drive(driveSupplier, turnSupplier, getSpeedMultiplier(useSlowMode));
     }
