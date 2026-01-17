@@ -28,7 +28,7 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
     private DutyCycleEncoder L2Encoder;
     private DutyCycleEncoder R2Encoder;
     private boolean slowMode = false;
-    private double powerLimiter = 0.1;
+    private double powerLimiter = 0.25;
     private double slowModeMultiplier;
     
     public enum DrivebaseSubsystemStates {
@@ -60,16 +60,20 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
         return run(()-> {
             
             currentState = DrivebaseSubsystemStates.MANUAL_CONTROL;
+           
             double drive = driveSupplier.get();
             double turn = turnSupplier.get();
+
             double leftPower = (drive + turn);
             double rightPower = (drive - turn);
+
             double max = Math.max(Math.abs(rightPower),Math.abs(leftPower));
             if (max>1){
                 leftPower /= max;
                 rightPower /= max;
             }
             setMotorPowers(leftPower, rightPower);
+
         });
     }
     private void setMotorPowers(double leftPower, double rightPower){
@@ -80,16 +84,17 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
         R1.set(ControlMode.PercentOutput, rightPower * powerLimiter *slowModeMultiplier);
         R2.set(ControlMode.PercentOutput, rightPower * powerLimiter *slowModeMultiplier);
         R3.set(ControlMode.PercentOutput, rightPower * powerLimiter *slowModeMultiplier);
+        
     }
 
 
     public Command slowMode() {
-        return runOnce(() -> {slowModeChanger();});
+        return run(() -> {slowModeChanger();});
     }
     public void slowModeChanger(){
         slowMode = !slowMode;
         if (slowMode){
-            slowModeMultiplier = 0.25;
+            slowModeMultiplier = 0.50;
         } else {
             slowModeMultiplier = 1;
         }
@@ -141,8 +146,7 @@ public class DrivebaseSubsystem extends SubsystemBase implements CustomSubsystem
 
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'outputTelemetry'");
+        System.out.println();
     }
 
     @Override

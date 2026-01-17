@@ -14,6 +14,8 @@ import frc.robot.commands.outakeCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
+import frc.robot.subsystems.drivebase.DrivebaseSubsystemDos;
+import frc.robot.subsystems.drivebase.DrivebaseSubsystemDos.DrivebaseSubsystemDosStates;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem.IntakeSubsystemStates;
@@ -30,7 +32,11 @@ public class RobotContainer{
   private BlinkinSubsystem ledSubsystem = new BlinkinSubsystem();
   private CPRotatorSubsystem cpRotatorSubsystem = new CPRotatorSubsystem();
   private final CommandXboxController xboxController = new CommandXboxController(0);
-  
+  private DrivebaseSubsystemDos drivebaseSubsystemDos = new DrivebaseSubsystemDos(
+    
+    () -> applyDeadzone( xboxController.getLeftX(), 0.2), 
+    () -> applyDeadzone( xboxController.getRightY(), 0.2));
+
   public RobotContainer() {
     //allows you to easily change the power
     //transferSubsystem.changeBallTransferPower(0.5);
@@ -42,18 +48,18 @@ public class RobotContainer{
   
   private void configureBindings() {
 
-      drivebaseSubsystem.setDefaultCommand(
+      drivebaseSubsystemDos.setDefaultCommand(
         
-        drivebaseSubsystem.drive(
-          () -> applyDeadzone(xboxController.getRightY(), 0.2),
-          () -> applyDeadzone(xboxController.getRightX(), 0.2)
-          )
+      drivebaseSubsystemDos.setDriveStateCommand(DrivebaseSubsystemDosStates.MANUAL_CONTROL)
+       
       ); 
-      xboxController.leftBumper().onTrue(new intakeCommand(intakeSubsystem,transferSubsystem));
-      xboxController.rightBumper().onTrue(new outakeCommand(intakeSubsystem, transferSubsystem));
+
+      xboxController.leftTrigger().onTrue(new intakeCommand(intakeSubsystem,transferSubsystem));
+      xboxController.rightTrigger().onTrue(new outakeCommand(intakeSubsystem, transferSubsystem));
       xboxController.x().onTrue(new idleCommand(intakeSubsystem, transferSubsystem));
-      xboxController.leftTrigger().onTrue(drivebaseSubsystem.slowMode());
-  } 
+      xboxController.leftBumper().whileTrue(drivebaseSubsystemDos.setDriveStateCommand(DrivebaseSubsystemDosStates.SLOWMODE));
+  
+    } 
   
   public double applyDeadzone(double value, double deadzone){
     if (Math.abs(value) < deadzone) {
