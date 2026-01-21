@@ -35,10 +35,7 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
             switch (currentState) {
                 case IDLE:
                     setAimingPanelPosition(targetPosition);
-
-                    if (targetState == AimingSubsystemStates.AIMED || targetState == AimingSubsystemStates.AIMING) {
-                        currentState = AimingSubsystemStates.AIMING;
-                    }
+                    currentState = AimingSubsystemStates.AIMING;
 
                 case AIMING:
                     if (targetState == AimingSubsystemStates.IDLE) {
@@ -111,8 +108,8 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
 
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
-        if (telemetryTimer.hasElapsed(1)) {
-            System.out.println("Aiming panel target position: " + targetPosition + "/" + aimingPanelRotator.getSelectedSensorPosition() + " (At pos: " + atTargetPosition() + ")");
+        if (telemetryTimer.hasElapsed(1) && enableTelemetry) {
+            System.out.println("Aiming panel target position: " + aimingPanelRotator.getSelectedSensorPosition() + "/" + targetPosition + " (At pos: " + atTargetPosition() + ")");
             System.out.println("Current aiming panel state " + currentState);
             telemetryTimer.reset();
         }
@@ -127,8 +124,11 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
         aimingPanelRotator.config_kP(0, 0.1);
         aimingPanelRotator.config_kI(0, 0.0);
         aimingPanelRotator.config_kD(0, 0.0);
+        aimingPanelRotator.config_kF(0, 0.5);
 
         aimingPanelRotator.setNeutralMode(NeutralMode.Brake);
         aimingPanelRotator.setInverted(false);
+
+        telemetryTimer.start();
     }
 }

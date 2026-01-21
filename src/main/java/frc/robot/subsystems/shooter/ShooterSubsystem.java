@@ -210,7 +210,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
-        if (telemetryTimer.hasElapsed(1)) {
+        if (telemetryTimer.hasElapsed(1) && enableTelemetry) {
             
             System.out.println("Current Shooter State: " + currentState);
             
