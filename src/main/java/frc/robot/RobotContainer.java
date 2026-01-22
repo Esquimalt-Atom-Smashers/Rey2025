@@ -62,7 +62,7 @@ public class RobotContainer{
     driverController.rightTrigger().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
     // Toggle between charging and idle
-    driverController.x().onTrue(new ToggleShooterChargingCommand(shooterSubsystem));
+    //driverController.x().onTrue(new ToggleShooterChargingCommand(shooterSubsystem));
 
     // Adjust velocity
     driverController.povUp()   .onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.FAST_FLYWHEEL_VELOCITY));
@@ -71,16 +71,23 @@ public class RobotContainer{
 
     // Aiming panel
     driverController.y().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setTargetState(AimingSubsystemStates.AIMED);
+      aimSubsystem.setAimingPanelPower(0);
     }));
 
-    driverController.a().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setTargetState(AimingSubsystemStates.IDLE);
-    }));
+    //driverController.b().onTrue(new InstantCommand(() -> {
+    //  aimSubsystem.setAimingPanelPower(0.5);
+    //}));
+//
+    //driverController.x().onTrue(new InstantCommand(() -> {
+    //  aimSubsystem.setAimingPanelPower(-0.5);
+    //}));
+
+    driverController.b().whileTrue(aimSubsystem.setAimingPanelPositionCommand(2.5));
+    driverController.x().whileTrue(aimSubsystem.setAimingPanelPositionCommand(4.9));
     
-    driverController.b().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setTargetPosition(5);
-    }));
+    driverController.a().whileTrue(aimSubsystem.setAimingPanelPositionCommand(3.3));
+
+    
 
     // -- Drive Controls --
     driverController.rightBumper().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));

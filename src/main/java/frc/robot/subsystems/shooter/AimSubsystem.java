@@ -5,9 +5,13 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.PhoenixIDConstants;
 
 public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSubsystem.AimingSubsystemStates> {
@@ -25,56 +29,39 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
         AIMED
     }
 
-    private VictorSPX aimingPanelRotator = new VictorSPX(PhoenixIDConstants.HOOD_LINEAR_ACTUATOR);
+    private VictorSPX hoodMotor = new VictorSPX(PhoenixIDConstants.HOOD_LINEAR_ACTUATOR);
+    private AnalogInput hoodPotentiometer = new AnalogInput(0);
+
+    PIDController pid = new PIDController(2.0, 0.0, 0.1);
+
+    private final double minHoodPosition = 3;
+    private final double maxHoodPosition = 4.9;
 
     @Override
     public void periodic() {
         outputTelemetry(true);
-
-        if (targetState != currentState) {
-            switch (currentState) {
-                case IDLE:
-                    setAimingPanelPosition(targetPosition);
-                    currentState = AimingSubsystemStates.AIMING;
-
-                case AIMING:
-                    if (targetState == AimingSubsystemStates.IDLE) {
-                        setAimingPanelPower(0);
-                        currentState = AimingSubsystemStates.IDLE;
-                    }
-                    else if (targetState == AimingSubsystemStates.AIMED) {
-                        if (atTargetPosition()) {
-                            currentState = AimingSubsystemStates.AIMED;
-                        } else {
-                            setAimingPanelPosition(targetPosition);
-                        }
-                    }
-                    break;
-
-                case AIMED:
-                    if (targetState == AimingSubsystemStates.IDLE) {
-                        setAimingPanelPower(0);
-                        currentState = AimingSubsystemStates.IDLE;
-                    } else if (!atTargetPosition()) {
-                        currentState = AimingSubsystemStates.AIMING;
-                    }
-                    break;
-                default:
-                    setTargetState(AimingSubsystemStates.IDLE);
-            }
-        }
     }
 
     public void setAimingPanelPower(double power) {
-        aimingPanelRotator.set(ControlMode.PercentOutput, power);
+        hoodMotor.set(ControlMode.PercentOutput, power);
+    }
+
+    public Command setAimingPanelPositionCommand(double position) {
+        return run (() -> { setAimingPanelPosition(position); });
     }
 
     public void setAimingPanelPosition(double position) {
-        aimingPanelRotator.set(ControlMode.Position, position);
+        double maxOutput = 0.5;
+        
+        double output = pid.calculate(hoodPotentiometer.getVoltage(), position);
+        output = MathUtil.clamp(output, -maxOutput, maxOutput);
+        System.out.println(output);
+        hoodMotor.set(ControlMode.PercentOutput, output);
     }
 
     public boolean atPosition(double position) {
-        return aimingPanelRotator.getSelectedSensorPosition() >= targetPosition;
+        double tolerance = 0.02;
+        return Math.abs(hoodPotentiometer.getVoltage() - position) < tolerance;
     }
 
     public boolean atTargetPosition() {
@@ -109,7 +96,7 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
     @Override
     public void outputTelemetry(boolean enableTelemetry) {
         if (telemetryTimer.hasElapsed(1) && enableTelemetry) {
-            System.out.println("Aiming panel target position: " + aimingPanelRotator.getSelectedSensorPosition() + "/" + targetPosition + " (At pos: " + atTargetPosition() + ")");
+            System.out.println("Aiming panel target position: " + hoodPotentiometer.getVoltage() + "/" + targetPosition + " (At pos: " + atTargetPosition() + ")");
             System.out.println("Current aiming panel state " + currentState);
             telemetryTimer.reset();
         }
@@ -117,17 +104,12 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
 
     @Override
     public void initializeSubsystem() {
-        aimingPanelRotator.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
-        
-        aimingPanelRotator.configFactoryDefault();
+        pid.setTolerance(0.02);
 
-        aimingPanelRotator.config_kP(0, 0.1);
-        aimingPanelRotator.config_kI(0, 0.0);
-        aimingPanelRotator.config_kD(0, 0.0);
-        aimingPanelRotator.config_kF(0, 0.5);
+        hoodMotor.configFactoryDefault();
 
-        aimingPanelRotator.setNeutralMode(NeutralMode.Brake);
-        aimingPanelRotator.setInverted(false);
+        hoodMotor.setNeutralMode(NeutralMode.Brake);
+        hoodMotor.setInverted(true);
 
         telemetryTimer.start();
     }
