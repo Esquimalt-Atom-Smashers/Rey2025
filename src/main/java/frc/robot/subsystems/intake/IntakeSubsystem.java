@@ -31,40 +31,48 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
 
         if (targetState != currentState) {
             switch (currentState) {
-                case IDLE:
-                    if (targetState == IntakeSubsystemStates.OUTTAKING) {
-                        outtakeIntake();
-                        setCurrentState(IntakeSubsystemStates.OUTTAKING);
-                    }
-                    else if (targetState == IntakeSubsystemStates.INTAKING) {
-                        intakeIntake();
-                        setCurrentState(IntakeSubsystemStates.INTAKING);
-                    }
-                    break;
-                case OUTTAKING:
-                    if (targetState == IntakeSubsystemStates.IDLE) {
-                        idleIntake();
-                        setCurrentState(IntakeSubsystemStates.IDLE);
-                    } 
-                    else if (targetState == IntakeSubsystemStates.INTAKING) {
-                        intakeIntake();
-                        setCurrentState(IntakeSubsystemStates.INTAKING);
-                    }
-                    break;
-                case INTAKING:
-                    if (targetState == IntakeSubsystemStates.IDLE) {
-                        idleIntake();
-                        setCurrentState(IntakeSubsystemStates.IDLE);
-                    }
-                    else if (targetState == IntakeSubsystemStates.OUTTAKING) {
-                        outtakeIntake();
-                        setCurrentState(IntakeSubsystemStates.OUTTAKING);
-                    }
-                    break;
+                case IDLE -> handleIDLE();
+                case OUTTAKING -> handleOUTTAKING();
+                case INTAKING -> handleINTAKING();
             }
         }
     }
 
+    //region Handle States
+    private void handleIDLE() {
+        if (targetState == IntakeSubsystemStates.OUTTAKING) {
+            outtakeIntake();
+            setCurrentState(IntakeSubsystemStates.OUTTAKING);
+        }
+        else if (targetState == IntakeSubsystemStates.INTAKING) {
+            intakeIntake();
+            setCurrentState(IntakeSubsystemStates.INTAKING);
+        }
+    }
+
+    private void handleOUTTAKING() {
+        if (targetState == IntakeSubsystemStates.IDLE) {
+            idleIntake();
+            setCurrentState(IntakeSubsystemStates.IDLE);
+        } 
+        else if (targetState == IntakeSubsystemStates.INTAKING) {
+            intakeIntake();
+            setCurrentState(IntakeSubsystemStates.INTAKING);
+        }
+    }
+
+    private void handleINTAKING() {
+        if (targetState == IntakeSubsystemStates.IDLE) {
+            idleIntake();
+            setCurrentState(IntakeSubsystemStates.IDLE);
+        }
+        else if (targetState == IntakeSubsystemStates.OUTTAKING) {
+            outtakeIntake();
+            setCurrentState(IntakeSubsystemStates.OUTTAKING);
+        }
+    }
+
+    //endregion
     public Command setMotorVoltageCommand(double power) {
         return runOnce(() -> { setVoltage(power); });
     }

@@ -14,6 +14,7 @@ import frc.robot.commands.IntakeBallsCommand;
 import frc.robot.commands.OuttakeBallsCommand;
 import frc.robot.commands.RunShooterFeederCommand;
 import frc.robot.commands.ToggleAimingHoodCommand;
+import frc.robot.commands.ToggleShooterChargingCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
@@ -61,7 +62,7 @@ public class RobotContainer{
     driverController.rightTrigger().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
     // Toggle between charging and idle
-    //driverController.x().onTrue(new ToggleShooterChargingCommand(shooterSubsystem));
+    driverController.x().onTrue(new ToggleShooterChargingCommand(shooterSubsystem));
 
     // Adjust velocity
     driverController.povUp()   .onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.FAST_FLYWHEEL_VELOCITY));

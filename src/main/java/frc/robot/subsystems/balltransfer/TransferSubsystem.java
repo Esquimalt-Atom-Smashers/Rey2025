@@ -32,51 +32,61 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
 
         if (targetState != currentState) {
             switch (currentState) {
-                case IDLE:
-                    if (targetState == TransferSubsystemStates.TRANSFER) {
-                        transferBalls();
-                        setCurrentState(TransferSubsystemStates.TRANSFER);
-                    }
-                    else if (targetState == TransferSubsystemStates.EJECT) {
-                        ejectBalls();
-                        setCurrentState(TransferSubsystemStates.EJECT);
-                    }
-                    else if (targetState == TransferSubsystemStates.SHUFFLE) {
-                        // shuffly
-                    }
-                    break;
-                case TRANSFER:
-                    if (targetState == TransferSubsystemStates.IDLE) {
-                        idleTransfer();
-                        setCurrentState(TransferSubsystemStates.IDLE);
-                    }
-                    else if (targetState == TransferSubsystemStates.EJECT) {
-                        ejectBalls();
-                        setCurrentState(TransferSubsystemStates.EJECT);
-                    }
-                    else if (targetState == TransferSubsystemStates.SHUFFLE) {
-                        // shuffle
-                    }
-                    break;
-                case EJECT:
-                    if (targetState == TransferSubsystemStates.IDLE) {
-                        idleTransfer();
-                        setCurrentState(TransferSubsystemStates.IDLE);
-                    }
-                    else if (targetState == TransferSubsystemStates.TRANSFER) {
-                        transferBalls();
-                        setCurrentState(TransferSubsystemStates.TRANSFER);
-                    }
-                    else if (targetState == TransferSubsystemStates.SHUFFLE) {
-                        // shuffle
-                    }
-                    break;
-                case SHUFFLE:
-                    // too lazy to add rn
-                    break;
+                case IDLE -> handleIDLE();
+                case TRANSFER -> handleTRANSFER();
+                case EJECT -> handleEJECT();
+                case SHUFFLE -> handleSHUFFLE();
             }
         }
     }
+
+    //region Handle States
+    private void handleIDLE() {
+        if (targetState == TransferSubsystemStates.TRANSFER) {
+            transferBalls();
+            setCurrentState(TransferSubsystemStates.TRANSFER);
+        }
+        else if (targetState == TransferSubsystemStates.EJECT) {
+            ejectBalls();
+            setCurrentState(TransferSubsystemStates.EJECT);
+        }
+        else if (targetState == TransferSubsystemStates.SHUFFLE) {
+            // shuffly
+        }
+    }
+
+    private void handleTRANSFER() {
+        if (targetState == TransferSubsystemStates.IDLE) {
+            idleTransfer();
+            setCurrentState(TransferSubsystemStates.IDLE);
+        }
+        else if (targetState == TransferSubsystemStates.EJECT) {
+            ejectBalls();
+            setCurrentState(TransferSubsystemStates.EJECT);
+        }
+        else if (targetState == TransferSubsystemStates.SHUFFLE) {
+            // shuffle
+        }
+    }
+
+    private void handleEJECT() {
+        if (targetState == TransferSubsystemStates.IDLE) {
+            idleTransfer();
+            setCurrentState(TransferSubsystemStates.IDLE);
+        }
+        else if (targetState == TransferSubsystemStates.TRANSFER) {
+            transferBalls();
+            setCurrentState(TransferSubsystemStates.TRANSFER);
+        }
+        else if (targetState == TransferSubsystemStates.SHUFFLE) {
+            // shuffle
+        }
+    }
+
+    private void handleSHUFFLE() {
+        // too lazy to add rn
+    }
+    //endregion
 
     public Command setMotorVoltageCommand(double power) {
         return runOnce(() -> { setVoltage(power); });
