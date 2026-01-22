@@ -13,7 +13,7 @@ import frc.robot.commands.IdleSubsystemsCommand;
 import frc.robot.commands.IntakeBallsCommand;
 import frc.robot.commands.OuttakeBallsCommand;
 import frc.robot.commands.RunShooterFeederCommand;
-import frc.robot.commands.ToggleShooterChargingCommand;
+import frc.robot.commands.ToggleAimingHoodCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
@@ -21,7 +21,6 @@ import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.ledlights.BlinkinSubsystem;
 import frc.robot.subsystems.shooter.AimSubsystem;
-import frc.robot.subsystems.shooter.AimSubsystem.AimingSubsystemStates;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class RobotContainer{
@@ -70,24 +69,15 @@ public class RobotContainer{
     driverController.povDown() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
 
     // Aiming panel
-    driverController.y().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setAimingPanelPower(0);
+    driverController.y().onTrue(new ToggleAimingHoodCommand(aimSubsystem));
+
+    driverController.b().onTrue(new InstantCommand(() -> {
+      aimSubsystem.setTargetPosition(aimSubsystem.hoodDownPosition);
     }));
 
-    //driverController.b().onTrue(new InstantCommand(() -> {
-    //  aimSubsystem.setAimingPanelPower(0.5);
-    //}));
-//
-    //driverController.x().onTrue(new InstantCommand(() -> {
-    //  aimSubsystem.setAimingPanelPower(-0.5);
-    //}));
-
-    driverController.b().whileTrue(aimSubsystem.setAimingPanelPositionCommand(2.5));
-    driverController.x().whileTrue(aimSubsystem.setAimingPanelPositionCommand(4.9));
-    
-    driverController.a().whileTrue(aimSubsystem.setAimingPanelPositionCommand(3.3));
-
-    
+    driverController.a().onTrue(new InstantCommand(() -> {
+      aimSubsystem.setTargetPosition(aimSubsystem.hoodUpPosition);
+    }));
 
     // -- Drive Controls --
     driverController.rightBumper().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));

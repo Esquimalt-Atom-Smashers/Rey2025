@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
@@ -9,9 +8,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CustomSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.PhoenixIDConstants;
 
 public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSubsystem.AimingSubsystemStates> {
@@ -19,7 +18,9 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
     private AimingSubsystemStates currentState = AimingSubsystemStates.IDLE;
     private AimingSubsystemStates targetState = AimingSubsystemStates.IDLE;
 
-    private Timer telemetryTimer = new Timer();
+    private boolean aiming;
+
+    private final Timer telemetryTimer = new Timer();
 
     private double targetPosition;
 
@@ -29,18 +30,69 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
         AIMED
     }
 
-    private VictorSPX hoodMotor = new VictorSPX(PhoenixIDConstants.HOOD_LINEAR_ACTUATOR);
-    private AnalogInput hoodPotentiometer = new AnalogInput(0);
+    private final VictorSPX hoodMotor = new VictorSPX(PhoenixIDConstants.HOOD_LINEAR_ACTUATOR);
+    private final AnalogInput hoodPotentiometer = new AnalogInput(0);
 
     PIDController pid = new PIDController(2.0, 0.0, 0.1);
 
-    private final double minHoodPosition = 3;
-    private final double maxHoodPosition = 4.9;
+    // Customization
+    public final double hoodDownPosition = 2.6;
+    public final double hoodHalfwayPosition = 4.9;
+    public final double hoodUpPosition = 3.5;
+
+    private final double maxHoodSpeed = 0.5;
 
     @Override
     public void periodic() {
         outputTelemetry(true);
+
+        if (targetState != currentState) {
+            switch (currentState) {
+                case IDLE -> handleIDLE();
+                case AIMING -> handleAIMING();
+                case AIMED -> handleAIMED();
+                default -> setTargetState(AimingSubsystemStates.IDLE);
+            }
+        }
+
+        if (aiming) {
+            setAimingPanelPosition(targetPosition);
+        }
     }
+
+    //region State Handling
+    private void handleIDLE() {
+        aiming = true;
+        currentState = AimingSubsystemStates.AIMING;
+    }
+
+    private void handleAIMING() {
+        if (targetState == AimingSubsystemStates.IDLE) {
+            setIDLE();
+        }
+        else if (targetState == AimingSubsystemStates.AIMED) {
+            if (atTargetPosition()) {
+                currentState = AimingSubsystemStates.AIMED;
+            } else {
+                aiming = true;
+            }
+        }
+    }
+
+    private void handleAIMED() {
+        if (targetState == AimingSubsystemStates.IDLE) {
+            setIDLE();
+        } else if (!atTargetPosition()) {
+            currentState = AimingSubsystemStates.AIMING;
+        }
+    }
+
+    private void setIDLE() {
+        setAimingPanelPower(0);
+        aiming = false;
+        currentState = AimingSubsystemStates.IDLE;
+    }
+    //endregion
 
     public void setAimingPanelPower(double power) {
         hoodMotor.set(ControlMode.PercentOutput, power);
@@ -50,21 +102,19 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
         return run (() -> { setAimingPanelPosition(position); });
     }
 
-    public void setAimingPanelPosition(double position) {
-        double maxOutput = 0.5;
-        
+    private void setAimingPanelPosition(double position) {
         double output = pid.calculate(hoodPotentiometer.getVoltage(), position);
-        output = MathUtil.clamp(output, -maxOutput, maxOutput);
-        System.out.println(output);
+        output = MathUtil.clamp(output, -maxHoodSpeed, maxHoodSpeed);
+
         hoodMotor.set(ControlMode.PercentOutput, output);
     }
 
-    public boolean atPosition(double position) {
+    private boolean atPosition(double position) {
         double tolerance = 0.02;
         return Math.abs(hoodPotentiometer.getVoltage() - position) < tolerance;
     }
 
-    public boolean atTargetPosition() {
+    private boolean atTargetPosition() {
         return atPosition(targetPosition);
     }
 
@@ -84,7 +134,7 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
 
     @Override
     public void shutdownSubsystem() {
-        
+        setAimingPanelPower(0);
     }
 
     @Override
