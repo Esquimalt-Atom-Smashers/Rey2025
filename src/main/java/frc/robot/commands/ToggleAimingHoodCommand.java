@@ -21,10 +21,14 @@ public class ToggleAimingHoodCommand extends Command {
   
     @Override
     public void initialize() {
-        if (aimSubsystem.getState() != AimingSubsystemStates.AIMED)
+        if (aimSubsystem.getState() != AimingSubsystemStates.AIMED) {
+            System.out.println("Setting AIMED");
             aimSubsystem.setTargetState(AimSubsystem.AimingSubsystemStates.AIMED);
-        else 
+        }
+        else {
+            System.out.println("Setting IDLE");
             aimSubsystem.setTargetState(AimingSubsystemStates.IDLE);
+        }
     }
   
     @Override
@@ -39,6 +43,6 @@ public class ToggleAimingHoodCommand extends Command {
   
     @Override
     public boolean isFinished() {
-      return false;
+      return true;
     }
 }

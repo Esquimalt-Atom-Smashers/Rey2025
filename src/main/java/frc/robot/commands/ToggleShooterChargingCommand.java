@@ -22,8 +22,10 @@ public class ToggleShooterChargingCommand extends Command {
     @Override
     public void initialize() {
         if (shooterSubsystem.getState() != ShooterSubsystemStates.CHARGED) {
+            System.out.println("Setting shooter Charged");
             shooterSubsystem.setTargetState(ShooterSubsystemStates.CHARGED);
         } else {
+            System.out.println("Setting shooter Idle");
             shooterSubsystem.setTargetState(ShooterSubsystemStates.IDLE);
         }
     }

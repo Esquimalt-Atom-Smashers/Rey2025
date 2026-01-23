@@ -38,6 +38,9 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     public static final double FAST_FLYWHEEL_VELOCITY = 6000;
     private double targetFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
 
+    // 4 : 1 gear ratio
+    private static final double flywheelGearRatio = 4;
+
     // Flywheel velocity setup
     double maxRPM = 2000;
     double encoderCPR = 4096;
@@ -47,7 +50,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     @Override
     public void periodic() {
-        outputTelemetry(false);
+        outputTelemetry(true);
         
         if (targetState != currentState) {
             switch (currentState) {
@@ -158,7 +161,12 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     private boolean atSpeed() {
-        return Math.abs(flywheelMotor.getClosedLoopError()) >= targetFlywheelVelocity * 4;
+        // around 20k
+        return Math.abs(flywheelMotor.getSelectedSensorVelocity()) >= targetFlywheelVelocity;
+    }
+
+    private double getFlywheelTargetSpeed() {
+        return targetFlywheelVelocity * flywheelGearRatio;
     }
 
     private void setFlywheelVelocityToCurrentTarget() {
@@ -209,7 +217,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
             
             System.out.println("Current Shooter State: " + currentState);
             
-            System.out.println("Flywheel RPM = " + Math.abs(flywheelMotor.getClosedLoopError()) + "/" + targetFlywheelVelocity * 4);
+            System.out.println("Flywheel RPM = " + Math.abs(flywheelMotor.getSelectedSensorVelocity()) + "/" + targetFlywheelVelocity + " (At speed: " + atSpeed() + ")");
             telemetryTimer.reset();
         }
     }

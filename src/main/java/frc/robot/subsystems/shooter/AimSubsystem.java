@@ -22,7 +22,7 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
 
     private final Timer telemetryTimer = new Timer();
 
-    private double targetPosition;
+    private double targetPosition = hoodDownPosition;
 
     public enum AimingSubsystemStates {
         IDLE,
@@ -36,15 +36,17 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
     PIDController pid = new PIDController(2.0, 0.0, 0.1);
 
     // Customization
-    public final double hoodDownPosition = 2.6;
-    public final double hoodHalfwayPosition = 4.9;
-    public final double hoodUpPosition = 3.5;
+
+    // 0 - 5 "volts"
+    public static final double hoodDownPosition = 4.9;
+    public static final double hoodHalfwayPosition = 3.5;
+    public static final double hoodUpPosition = 2.85;
 
     private final double maxHoodSpeed = 0.5;
 
     @Override
     public void periodic() {
-        outputTelemetry(true);
+        outputTelemetry(false);
 
         if (targetState != currentState) {
             switch (currentState) {
@@ -57,6 +59,8 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
 
         if (aiming) {
             setAimingPanelPosition(targetPosition);
+        } else {
+            setAimingPanelPower(0);
         }
     }
 
@@ -154,7 +158,7 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
 
     @Override
     public void initializeSubsystem() {
-        pid.setTolerance(0.02);
+        pid.setTolerance(0.03);
 
         hoodMotor.configFactoryDefault();
 

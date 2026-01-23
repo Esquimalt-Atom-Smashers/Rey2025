@@ -84,7 +84,7 @@ public class RobotContainer{
     driverController.rightBumper().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));
 
     // -- Idle all systems --
-    driverController.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem));
+    driverController.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem, aimSubsystem));
   }
 
   public double applyDeadzone(double value){
