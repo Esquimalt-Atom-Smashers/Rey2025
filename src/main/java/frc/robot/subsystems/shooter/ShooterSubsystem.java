@@ -235,9 +235,6 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
         telemetryTimer.start();
 
-        flywheelMotor.enableVoltageCompensation(true);
-        flywheelMotor.configVoltageCompSaturation(12.0);
-
         flywheelMotor.setNeutralMode(NeutralMode.Coast);
         flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
 
@@ -248,12 +245,11 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
         flywheelMotor.configAllowableClosedloopError(0, FLYWHEEL_CLOSED_LOOP_ERROR);
         
-        flywheelMotor.config_kP(0, 0.03);
+        flywheelMotor.config_kP(0, 0.1);
         flywheelMotor.config_kI(0, 0.0);
         flywheelMotor.config_kD(0, 0.0);
 
         double kF = 1023 / maxVelocity;
         flywheelMotor.config_kF(0, 0.015);
-        System.out.println(kF);
     }
 }
