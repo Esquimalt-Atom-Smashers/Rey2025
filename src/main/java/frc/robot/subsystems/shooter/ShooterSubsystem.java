@@ -31,15 +31,17 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     public static final double FLYWHEEL_CLOSED_LOOP_ERROR = 250;
 
-    public static final double DEFAULT_FLYWHEEL_VELOCITY = 7000;
-    public static final double SLOW_FLYWHEEL_VELOCITY = 5000;
-    public static final double FAST_FLYWHEEL_VELOCITY = 10000;
+    public static final double DEFAULT_FLYWHEEL_VELOCITY = 2000;
+    public static final double SLOW_FLYWHEEL_VELOCITY = 1000;
+    public static final double FAST_FLYWHEEL_VELOCITY = 3000;
     private double targetFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
 
     public boolean spinningFlywheel = false;
 
     // Flywheel velocity setup
     double maxVelocity = 22500;
+    double encoderCPR = 4096;
+    double numberOf100msIntervalsPerMinute = 600;
 
     private final double feedingPower = 0.2;
 
@@ -143,7 +145,11 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
             }
         });
     }
-    
+
+    private double RPMtoTalonUnits(double rpm) {
+        return rpm * encoderCPR / numberOf100msIntervalsPerMinute;
+    }
+
     private void idleFlywheel() {
         spinningFlywheel = false;
     }
@@ -179,7 +185,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     private void setFlywheelVelocity(double velocity) {
-        flywheelMotor.set(ControlMode.Velocity, velocity);
+        flywheelMotor.set(ControlMode.Velocity, RPMtoTalonUnits(velocity));
     }
 
     private void setFlywheelPower(double power) {
@@ -238,6 +244,9 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         flywheelMotor.setNeutralMode(NeutralMode.Coast);
         flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
 
+        flywheelMotor.enableVoltageCompensation(true);
+        flywheelMotor.configVoltageCompSaturation(12.0);
+
         flywheelMotor.enableCurrentLimit(true);
         flywheelMotor.configPeakCurrentLimit(30);
         
@@ -249,7 +258,8 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         flywheelMotor.config_kI(0, 0.0);
         flywheelMotor.config_kD(0, 0.0);
 
-        double kF = 1023 / maxVelocity;
-        flywheelMotor.config_kF(0, 0.015);
+        double maxTalonUnits = RPMtoTalonUnits(maxVelocity);
+        double kF = 1023 / maxTalonUnits;
+        flywheelMotor.config_kF(0, kF);
     }
 }
