@@ -73,11 +73,11 @@ public class RobotContainer{
     driverController.y().onTrue(new ToggleAimingHoodCommand(aimSubsystem));
 
     driverController.b().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setTargetPosition(aimSubsystem.hoodDownPosition);
+      aimSubsystem.setTargetPosition(AimSubsystem.hoodDownPosition);
     }));
 
     driverController.a().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setTargetPosition(aimSubsystem.hoodUpPosition);
+      aimSubsystem.setTargetPosition(AimSubsystem.hoodUpPosition);
     }));
 
     // -- Drive Controls --
