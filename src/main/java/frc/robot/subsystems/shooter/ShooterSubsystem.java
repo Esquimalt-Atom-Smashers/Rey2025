@@ -30,7 +30,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     public static final double SLOW_FLYWHEEL_VELOCITY = 2000;
     public static final double FAST_FLYWHEEL_VELOCITY = 6000;
     private double targetFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
-    
+    private final int FLYWHEEL_CLOSED_LOOP_ERROR = 250;
     private static final double VELOCITY_TOLERANCE = 150;
 
     private boolean canShoot = atSpeed();
@@ -44,7 +44,10 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     private double maxRPM = 2000;
     private double targetRPM = 500;
+    
+    // ticks/counts per revolution
     private double encoderCPR = 4096;
+
     private double maxTalonUnits = maxRPM * encoderCPR / 600;
 
     private Timer telemetryTimer = new Timer();
@@ -64,23 +67,15 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
             if (targetState == ShooterSubsystemStates.IDLE) {
                 setCurrentState(ShooterSubsystemStates.IDLE);
             } 
-            else if (targetState == ShooterSubsystemStates.CHARGED) {
-                
-                if (atSpeed()) {
-                    setCurrentState(ShooterSubsystemStates.CHARGED);
-                }
-            } 
-            else if (targetState == ShooterSubsystemStates.SHOOTING) {
-                
-                if (atSpeed()){
-                    setCurrentState(ShooterSubsystemStates.SHOOTING);
-                }
+            
+            if (atSpeed()){
+                setCurrentState(ShooterSubsystemStates.CHARGED);
             }
             break;
             
             case CHARGED:
                 
-                setShooterVelocity(rpmToTalonUnits(targetRPM));
+                setShooterVelocity(rpmToTalonUnits(targetFlywheelVelocity));
 
                 if (targetState == ShooterSubsystemStates.SHOOTING) {
                     setCurrentState(ShooterSubsystemStates.SHOOTING);;
@@ -93,12 +88,13 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
             
             case SHOOTING:
                 
-                setShooterVelocity(rpmToTalonUnits(targetRPM));
+                setShooterVelocity(rpmToTalonUnits(targetFlywheelVelocity));
 
                 if (atSpeed()) {
                     setFeederPower(feedingPower);
                 } else {
-                    setFeederPower(1);
+                    setFeederPower(0);
+                    System.out.println("Shooter not ready");
                 }
 
                 if (targetState == ShooterSubsystemStates.IDLE){
@@ -128,7 +124,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
     
     private double rpmToTalonUnits(double rpm) {
-    return rpm * encoderCPR / 600.0;
+    return rpm / encoderCPR * 600.0;
     }
 
     public Command setTargetStateCommand(ShooterSubsystemStates state) {
@@ -140,7 +136,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
     
     private boolean atSpeed() {
-        return Math.abs(shooterMotor.getClosedLoopError()) >= targetFlywheelVelocity * 4;
+        return Math.abs(rpmToTalonUnits(shooterMotor.getSelectedSensorVelocity()) - targetFlywheelVelocity) <= FLYWHEEL_CLOSED_LOOP_ERROR;
     }
 
     private void setShooterVelocity(double velocity){
@@ -190,8 +186,8 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
             System.out.println("Shooter Motor Current State is: " + currentState);
             System.out.println("Shooter Motor Target State is: " + targetState);
             System.out.println("Is it at speed?" + atSpeed());
-            System.out.println("Shooter Current Speed: " + Math.abs(shooterMotor.getClosedLoopError()));
-            System.out.println("Shooter Target Speed" + targetRPM * 4);
+            System.out.println("Shooter Current Speed: " + Math.abs(shooterMotor.getSelectedSensorVelocity()));
+            System.out.println("Shooter Target Speed" + targetFlywheelVelocity);
             telemetryTimer.reset();
         }
         
@@ -210,14 +206,14 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         shooterMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
         
         shooterMotor.enableCurrentLimit(true);
-        shooterMotor.configPeakCurrentLimit(2);
+        shooterMotor.configPeakCurrentLimit(30);
 
         shooterMotor.config_kP(0, 0.1);
         shooterMotor.config_kI(0, 0.0);
         shooterMotor.config_kD(0, 0.0);
 
-        double kf = 1023 / maxTalonUnits;
-        shooterMotor.config_kF(0, kf);
+        //double kf = 1023 / maxTalonUnits;
+        //shooterMotor.config_kF(0, kf);
 
     }
 
