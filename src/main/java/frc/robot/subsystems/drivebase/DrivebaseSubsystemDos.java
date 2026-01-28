@@ -30,8 +30,8 @@ public class DrivebaseSubsystemDos extends SubsystemBase {
     private DutyCycleEncoder leftEncoder;
     private DutyCycleEncoder rightEncoder;
 
-    private Supplier <Double> driveSupplier;
     private Supplier <Double> turnSupplier;
+    private Supplier <Double> driveSupplier;
 
     private double slowModeMultiplier;
     public enum DrivebaseSubsystemDosStates {
@@ -44,17 +44,17 @@ public class DrivebaseSubsystemDos extends SubsystemBase {
     
     }
     
-    public DrivebaseSubsystemDos(Supplier <Double> driveSupplier, Supplier <Double> turnSupplier) {
+    public DrivebaseSubsystemDos(Supplier <Double> turnSupplier, Supplier <Double> driveSupplier) {
        
-        this.turnSupplier = turnSupplier;
         this.driveSupplier = driveSupplier;
+        this.turnSupplier = turnSupplier;
 
     }   
 
     private void setMotorPowers(double leftPower, double rightPower, boolean slowMode) {
         
         if (slowMode){
-            slowModeMultiplier = 0.25;
+            slowModeMultiplier = 0.1;
         } 
         
         else {
@@ -82,8 +82,8 @@ public class DrivebaseSubsystemDos extends SubsystemBase {
     //runs every 20ms
     public void periodic() {
         
-        double drive = driveSupplier.get();
-        double turn = turnSupplier.get();
+        double drive = turnSupplier.get();
+        double turn = driveSupplier.get();
         
         double leftPower = (drive - turn);
         double rightPower = (drive + turn);

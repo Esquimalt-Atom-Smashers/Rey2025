@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -21,6 +23,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem.IntakeSubsystemStates;
 import frc.robot.subsystems.ledlights.BlinkinSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterSubsystemStates;
 
 public class RobotContainer{
  
@@ -56,9 +59,11 @@ public class RobotContainer{
 
       xboxController.leftTrigger().onTrue(new intakeCommand(intakeSubsystem,transferSubsystem));
       xboxController.rightTrigger().onTrue(new outakeCommand(intakeSubsystem, transferSubsystem));
-      xboxController.x().onTrue(new idleCommand(intakeSubsystem, transferSubsystem));
+      xboxController.y().onTrue(new idleCommand(intakeSubsystem, transferSubsystem));
       xboxController.leftBumper().whileTrue(drivebaseSubsystemDos.setDriveStateCommand(DrivebaseSubsystemDosStates.SLOWMODE));
-  
+      xboxController.x().onTrue(shooterSubsystem.setTargetStateCommand(ShooterSubsystemStates.CHARGING));
+      xboxController.a().onTrue(shooterSubsystem.setTargetStateCommand(ShooterSubsystemStates.SHOOTING));
+      xboxController.b().onTrue(shooterSubsystem.setTargetStateCommand(ShooterSubsystemStates.IDLE));
     } 
   
   public double applyDeadzone(double value, double deadzone){
