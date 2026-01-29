@@ -63,11 +63,13 @@ public class RobotContainer{
 
     // Toggle between charging and idle
     driverController.x().onTrue(new ToggleShooterChargingCommand(shooterSubsystem));
+    // driverController.x().onTrue(shooterSubsystem.setFlywheelPowerCommand(1));
+    // driverController.x().onFalse(shooterSubsystem.setFlywheelPowerCommand(0));
 
     // Adjust velocity
-    driverController.povUp()   .onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.FAST_FLYWHEEL_VELOCITY));
-    driverController.povRight().onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.DEFAULT_FLYWHEEL_VELOCITY));
-    driverController.povDown() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(ShooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
+    driverController.povUp()   .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.FAST_FLYWHEEL_VELOCITY));
+    driverController.povRight().onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.DEFAULT_FLYWHEEL_VELOCITY));
+    driverController.povDown() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
 
     // Aiming panel
     driverController.y().onTrue(new ToggleAimingHoodCommand(aimSubsystem));
@@ -112,5 +114,10 @@ public class RobotContainer{
     ledSubsystem.initializeSubsystem();
     cpRotatorSubsystem.initializeSubsystem();    
     aimSubsystem.initializeSubsystem();
+  }
+
+  public void disabledInit() {
+    shooterSubsystem.shutdownSubsystem();
+    // TODO: ADD MORE SYSTEMS
   }
 }
