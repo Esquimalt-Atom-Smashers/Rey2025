@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import java.lang.annotation.Target;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -31,9 +33,9 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     public static final double FLYWHEEL_CLOSED_LOOP_ERROR = 250;
 
-    public static final double DEFAULT_FLYWHEEL_VELOCITY = 2000;
-    public static final double SLOW_FLYWHEEL_VELOCITY = 1000;
-    public static final double FAST_FLYWHEEL_VELOCITY = 3000;
+    public static final double DEFAULT_FLYWHEEL_VELOCITY = 7000;
+    public static final double SLOW_FLYWHEEL_VELOCITY = 5000;
+    public static final double FAST_FLYWHEEL_VELOCITY = 10000;
     private double targetFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
 
     public boolean spinningFlywheel = false;
@@ -63,11 +65,6 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         }
 
         if (spinningFlywheel) {
-            System.out.println(
-                    "Target: " + flywheelMotor.getClosedLoopTarget()
-                  + " Actual: " + flywheelMotor.getSelectedSensorVelocity()
-                  + " Error: "  + flywheelMotor.getClosedLoopError()
-                );
             setFlywheelVelocityToCurrentTarget();
         } else {
             setFlywheelPower(0);
@@ -177,7 +174,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     private boolean atSpeed() {
-        return Math.abs(flywheelMotor.getClosedLoopError()) <= FLYWHEEL_CLOSED_LOOP_ERROR;
+        return Math.abs(TargetToActual(flywheelMotor.getSelectedSensorVelocity()) - targetFlywheelVelocity) <= FLYWHEEL_CLOSED_LOOP_ERROR;
     }
 
     private void setFlywheelVelocityToCurrentTarget() {
@@ -185,7 +182,21 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     private void setFlywheelVelocity(double velocity) {
-        flywheelMotor.set(ControlMode.Velocity, RPMtoTalonUnits(velocity));
+        flywheelMotor.set(ControlMode.Velocity, TargetToActual(velocity));
+    }
+
+    /*
+     * Converters the actual rpm to the proper RPM after using TargetToActual()
+     */
+    private double ActualToTarget(double target) {
+        return (0.982 * target) - 469;
+    }
+
+    /*
+     * Converts the RPM to what is actually needed to help with motor speed offset
+     */
+    private double TargetToActual(double actual) {
+        return (actual + 469) * 0.982;
     }
 
     private void setFlywheelPower(double power) {
@@ -225,8 +236,9 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
             System.out.println("Current Shooter State: " + currentState);
             System.out.println("Spinning flywheel: " + spinningFlywheel);
             System.out.println(
-                "Flywheel Error = " + flywheelMotor.getClosedLoopError() +
-                " (At speed: " + atSpeed() + ")");
+                "Flywheel Target = " + targetFlywheelVelocity +
+                "\nFlywheel Speed = " + flywheelMotor.getSelectedSensorVelocity() +
+                "\n (At speed: " + atSpeed() + ")");
             telemetryTimer.reset();
         }
     }
