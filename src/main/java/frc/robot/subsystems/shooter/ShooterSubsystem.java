@@ -62,16 +62,16 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
             
             case CHARGING:
                 
-            setShooterVelocity(rpmToTalonUnits(targetFlywheelVelocity));
+                setShooterVelocity(rpmToTalonUnits(targetFlywheelVelocity));
             
-            if (targetState == ShooterSubsystemStates.IDLE) {
-                setCurrentState(ShooterSubsystemStates.IDLE);
-            } 
+                if (targetState == ShooterSubsystemStates.IDLE) {
+                    setCurrentState(ShooterSubsystemStates.IDLE);
+                } 
             
-            if (atSpeed()){
-                setCurrentState(ShooterSubsystemStates.CHARGED);
-            }
-            break;
+                if (atSpeed()){
+                    setCurrentState(ShooterSubsystemStates.CHARGED);
+                }
+                break;
             
             case CHARGED:
                 
@@ -91,9 +91,8 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
                 setShooterVelocity(rpmToTalonUnits(targetFlywheelVelocity));
 
                 if (atSpeed()) {
-                    setFeederPower(feedingPower);
+                    setFeederPower(-0.5);
                 } else {
-                    setFeederPower(0);
                     System.out.println("Shooter not ready");
                 }
 
@@ -113,6 +112,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
                 case CHARGING:
                     setCurrentState(ShooterSubsystemStates.CHARGING);
                     break;
+                
                 default:
                     break;
             }
@@ -124,9 +124,11 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
     
     private double rpmToTalonUnits(double rpm) {
-    return rpm / encoderCPR * 600.0;
+        return rpm * encoderCPR / 600.0;
     }
-
+    private double talonUnitsToRPM(double talonUnits) {
+        return talonUnits * 600 / encoderCPR;
+    }
     public Command setTargetStateCommand(ShooterSubsystemStates state) {
         return runOnce(() -> {setTargetState(state);});
     }
@@ -136,7 +138,8 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
     
     private boolean atSpeed() {
-        return Math.abs(rpmToTalonUnits(shooterMotor.getSelectedSensorVelocity()) - targetFlywheelVelocity) <= FLYWHEEL_CLOSED_LOOP_ERROR;
+        double currentRPM = talonUnitsToRPM(shooterMotor.getSelectedSensorVelocity());
+        return Math.abs(currentRPM - targetFlywheelVelocity) <= FLYWHEEL_CLOSED_LOOP_ERROR;
     }
 
     private void setShooterVelocity(double velocity){
@@ -186,8 +189,8 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
             System.out.println("Shooter Motor Current State is: " + currentState);
             System.out.println("Shooter Motor Target State is: " + targetState);
             System.out.println("Is it at speed?" + atSpeed());
-            System.out.println("Shooter Current Speed: " + Math.abs(shooterMotor.getSelectedSensorVelocity()));
-            System.out.println("Shooter Target Speed" + targetFlywheelVelocity);
+            System.out.println("Shooter Current Speed: " + Math.abs(talonUnitsToRPM(shooterMotor.getSelectedSensorVelocity())));
+            System.out.println("Shooter Target Speed" + -targetFlywheelVelocity);
             telemetryTimer.reset();
         }
         
@@ -199,8 +202,9 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         shooterMotor.configFactoryDefault();
         feederMotor.configFactoryDefault();
 
+        shooterMotor.setSensorPhase(true);
         shooterMotor.setInverted(true);
-        feederMotor.setInverted(true);
+        feederMotor.setInverted(false);
 
         shooterMotor.setNeutralMode(NeutralMode.Coast);
         shooterMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
