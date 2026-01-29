@@ -56,6 +56,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     @Override
     public void periodic() {
+        targetFlywheelVelocity = -3000;
         // This runs every 20ms. Use it to act on the current state.
         outputTelemetry(true);
         switch (currentState) {
