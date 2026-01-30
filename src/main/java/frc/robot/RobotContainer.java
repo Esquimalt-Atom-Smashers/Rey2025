@@ -13,6 +13,7 @@ import frc.robot.commands.IdleSubsystemsCommand;
 import frc.robot.commands.IntakeBallsCommand;
 import frc.robot.commands.OuttakeBallsCommand;
 import frc.robot.commands.RunShooterFeederCommand;
+import frc.robot.commands.ShuffleBallsCommand;
 import frc.robot.commands.ToggleAimingHoodCommand;
 import frc.robot.commands.ToggleShooterChargingCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
@@ -55,11 +56,13 @@ public class RobotContainer{
   }
 
   private void configureBindings() {
-    // -- Intake and Ball Transfer --
+    //region Intake/Outtake
     driverController.leftBumper().whileTrue(new OuttakeBallsCommand(intakeSubsystem, transferSubsystem));
     driverController.leftTrigger().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
+    driverController.povLeft().whileTrue(new ShuffleBallsCommand(intakeSubsystem, transferSubsystem));
+    //endregion
 
-    // -- Shooting Controls --
+    //region Shooting
     // Run shooter feeder while holding
     driverController.rightTrigger().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
@@ -72,8 +75,9 @@ public class RobotContainer{
     driverController.povUp()   .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.FAST_FLYWHEEL_VELOCITY));
     driverController.povRight().onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.DEFAULT_FLYWHEEL_VELOCITY));
     driverController.povDown() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
+    //endregion
 
-    // Aiming panel
+    //region Aiming Panel
     driverController.y().onTrue(new InstantCommand(() -> {
       aimSubsystem.setTargetPosition(AimSubsystem.hoodUpPosition);
     }));
@@ -85,14 +89,22 @@ public class RobotContainer{
     driverController.a().onTrue(new InstantCommand(() -> {
       aimSubsystem.setTargetPosition(AimSubsystem.hoodDownPosition);
     }));
+    //endregion
 
-    // -- Drive Controls --
+    //region Driving
     driverController.rightBumper().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));
+    //endregion
 
-    // -- Idle all systems --
+    //region IDLE ALL SYSTEMS
     driverController.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem, aimSubsystem));
+    //endregion
   }
 
+  /* 
+   * If input is below the set deadzone, return 0
+   * 
+   * If input is above the deadzone, scale the input to a 0-1 range that gets outputted
+   */
   public double applyDeadzone(double value){
     if (Math.abs(value) < controllerDeadzone) {
       return 0.0;

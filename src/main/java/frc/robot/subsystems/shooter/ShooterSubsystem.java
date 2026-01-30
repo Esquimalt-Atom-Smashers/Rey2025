@@ -31,22 +31,20 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     private final VictorSPX feederMotor = new VictorSPX(PhoenixIDConstants.SHOOTER_FEEDER);
 
-    public static final double FLYWHEEL_CLOSED_LOOP_ERROR = 1000;
+    public static final double FLYWHEEL_CLOSED_LOOP_ERROR = 350;
 
-    public final double FAST_FLYWHEEL_VELOCITY    = rpmToTalonUnits(10000);
-    public final double DEFAULT_FLYWHEEL_VELOCITY = rpmToTalonUnits(7000);
-    public final double SLOW_FLYWHEEL_VELOCITY    = rpmToTalonUnits(5000);
+    public final double FAST_FLYWHEEL_VELOCITY    = rpmToTalonUnits(14000);
+    public final double DEFAULT_FLYWHEEL_VELOCITY = rpmToTalonUnits(10000);
+    public final double SLOW_FLYWHEEL_VELOCITY    = rpmToTalonUnits(7000);
     private double targetFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
 
-    public boolean spinningFlywheel = false;
-
     // Flywheel velocity setup
-    // Spin flywheel at PowerOutput 1, and use the selected sensor's velocity for this value
+    // Spin flywheel at a PowerOutput of 1, and use the selected sensor's approx. velocity for this value
     final double MAX_VELOCITY = 108000.0;
     final double ENCODER_CPR = 4096;
     final double _100_MILLISECONDS_PER_MINUTE = 600;
 
-    private final double feedingPower = 0.4;
+    private final double feedingPower = 0.2;
 
     @Override
     public void periodic() {
@@ -67,6 +65,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     //region State Handling
+    //region States
     private void handleIDLE() {
         powerFlywheel();
         currentState = ShooterSubsystemStates.CHARGING;
@@ -126,6 +125,33 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
     //endregion
 
+    private void idleFlywheel() {
+        setFlywheelPower(0);
+    }
+
+    private void powerFlywheel() {
+        setFlywheelVelocityToCurrentTarget();
+    }
+
+    private void idleFeeder() {
+        setFeederPower(0);
+    }
+
+    private void powerFeeder() {
+        setFeederPower(feedingPower);
+    }
+
+    private void idleShootingSystem() {
+        idleFlywheel();
+        idleFeeder();
+    }
+
+    private void powerShootingSystem() {
+        powerFeeder();
+        powerFlywheel();
+    }
+    //endregion
+
     public Command setFlywheelVelocityCommand(double velocity) {
         return runOnce(() -> {
             setFlywheelVelocity(velocity);
@@ -154,32 +180,6 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     private double talonUnitsToRPM(double talonUnits) {
         return talonUnits / ENCODER_CPR * _100_MILLISECONDS_PER_MINUTE;
-    }
-
-    private void idleFlywheel() {
-        setFlywheelPower(0);
-    }
-
-    private void powerFlywheel() {
-        setFlywheelVelocityToCurrentTarget();
-    }
-
-    private void idleFeeder() {
-        setFeederPower(0);
-    }
-
-    private void powerFeeder() {
-        setFeederPower(feedingPower);
-    }
-
-    private void idleShootingSystem() {
-        idleFlywheel();
-        idleFeeder();
-    }
-
-    private void powerShootingSystem() {
-        powerFeeder();
-        powerFlywheel();
     }
 
     private boolean atSpeed() {
@@ -228,7 +228,6 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         if (telemetryTimer.hasElapsed(1) && enableTelemetry) {
             
             System.out.println("Current Shooter State: " + currentState);
-            System.out.println("Spinning flywheel: " + spinningFlywheel);
             System.out.println(
                 "Flywheel Target = " + targetFlywheelVelocity +
                 "\nFlywheel Speed = " + flywheelMotor.getSelectedSensorVelocity() +
@@ -257,13 +256,12 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         flywheelMotor.enableCurrentLimit(false);
         flywheelMotor.configPeakCurrentLimit(30);
         
-        flywheelMotor.setSensorPhase(false);
-        
         flywheelMotor.config_kP(0, 0.1);
         flywheelMotor.config_kI(0, 0.0);
         flywheelMotor.config_kD(0, 0.0);
 
-        double kF = 1023 / MAX_VELOCITY;
+        double dutyCycle = 1;
+        double kF = 1023 * dutyCycle / MAX_VELOCITY;
         flywheelMotor.config_kF(0, kF);
     }
 }
