@@ -33,19 +33,20 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     public static final double FLYWHEEL_CLOSED_LOOP_ERROR = 800;
 
+    public final double FAST_FLYWHEEL_VELOCITY    = rpmToTalonUnits(3000);
     public final double DEFAULT_FLYWHEEL_VELOCITY = rpmToTalonUnits(2000);
     public final double SLOW_FLYWHEEL_VELOCITY    = rpmToTalonUnits(1000);
-    public final double FAST_FLYWHEEL_VELOCITY    = rpmToTalonUnits(3000);
     private double targetFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
 
     public boolean spinningFlywheel = false;
 
     // Flywheel velocity setup
+    // Spin flywheel at PowerOutput 1, and use the selected sensor's velocity for this value
     final double MAX_VELOCITY = 108000.0;
     final double ENCODER_CPR = 4096;
-    final double numberOf100msIntervalsPerMinute = 600;
+    final double _100_MILLISECONDS_PER_MINUTE = 600;
 
-    private final double feedingPower = 0.2;
+    private final double feedingPower = 0.4;
 
     @Override
     public void periodic() {
@@ -63,12 +64,6 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
                 }
             }   
         }
-
-        if (spinningFlywheel) {
-            setFlywheelVelocityToCurrentTarget();
-        } else {
-            setFlywheelPower(0);
-        }
     }
 
     //region State Handling
@@ -78,19 +73,23 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     private void handleCHARGING() {
-        if (targetState == ShooterSubsystemStates.IDLE) {
-            setIDLE();
-        } 
-        else if (targetState == ShooterSubsystemStates.CHARGED) {
-            if (atSpeed()) {
-                currentState = ShooterSubsystemStates.CHARGED;
-            }
-        } 
-        else if (targetState == ShooterSubsystemStates.SHOOTING) {
-            if (atSpeed()){
-                powerShootingSystem();
-                currentState = ShooterSubsystemStates.SHOOTING;
-            }
+        switch (targetState) {
+            case IDLE:
+                setIDLE();
+                break;
+            case CHARGED:
+                if (atSpeed()) {
+                    currentState = ShooterSubsystemStates.CHARGED;
+                }
+                break;
+            case SHOOTING:
+                if (atSpeed()) {
+                    powerShootingSystem();
+                    currentState = ShooterSubsystemStates.SHOOTING;
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -150,19 +149,19 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     }
 
     private double rpmToTalonUnits(double rpm) {
-        return rpm * ENCODER_CPR / numberOf100msIntervalsPerMinute;
+        return rpm * ENCODER_CPR / _100_MILLISECONDS_PER_MINUTE;
     }
 
     private double talonUnitsToRPM(double talonUnits) {
-        return talonUnits / ENCODER_CPR * numberOf100msIntervalsPerMinute;
+        return talonUnits / ENCODER_CPR * _100_MILLISECONDS_PER_MINUTE;
     }
 
     private void idleFlywheel() {
-        spinningFlywheel = false;
+        setFlywheelPower(0);
     }
 
     private void powerFlywheel() {
-        spinningFlywheel = true;
+        setFlywheelVelocityToCurrentTarget();
     }
 
     private void idleFeeder() {
@@ -193,20 +192,6 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     private void setFlywheelVelocity(double velocity) {
         flywheelMotor.set(ControlMode.Velocity, velocity);
-    }
-
-    /*
-     * Converters the actual rpm to the proper RPM after using TargetToActual()
-     */
-    private double ActualToTarget(double target) {
-        return (0.982 * target) - 469;
-    }
-
-    /*
-     * Converts the RPM to what is actually needed to help with motor speed offset
-     */
-    private double TargetToActual(double actual) {
-        return (actual + 469) * 0.982;
     }
 
     private void setFlywheelPower(double power) {
