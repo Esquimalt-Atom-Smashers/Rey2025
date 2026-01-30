@@ -20,7 +20,7 @@ public class IntakeSubsystem extends SubsystemBase implements CustomSubsystem<In
         OUTTAKING,
         IDLE
     }
-    private final double baseMotorSpeed = 0.4;
+    private final double baseMotorSpeed = 0.8;
 
     private final VictorSPX intakeMotor = new VictorSPX(PhoenixIDConstants.INTAKE);
     private final Timer telemetryTimer = new Timer();

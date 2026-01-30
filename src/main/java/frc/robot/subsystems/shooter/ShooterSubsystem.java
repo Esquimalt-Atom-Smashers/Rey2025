@@ -31,11 +31,11 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     private final VictorSPX feederMotor = new VictorSPX(PhoenixIDConstants.SHOOTER_FEEDER);
 
-    public static final double FLYWHEEL_CLOSED_LOOP_ERROR = 800;
+    public static final double FLYWHEEL_CLOSED_LOOP_ERROR = 1000;
 
-    public final double FAST_FLYWHEEL_VELOCITY    = rpmToTalonUnits(3000);
-    public final double DEFAULT_FLYWHEEL_VELOCITY = rpmToTalonUnits(2000);
-    public final double SLOW_FLYWHEEL_VELOCITY    = rpmToTalonUnits(1000);
+    public final double FAST_FLYWHEEL_VELOCITY    = rpmToTalonUnits(10000);
+    public final double DEFAULT_FLYWHEEL_VELOCITY = rpmToTalonUnits(7000);
+    public final double SLOW_FLYWHEEL_VELOCITY    = rpmToTalonUnits(5000);
     private double targetFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
 
     public boolean spinningFlywheel = false;
@@ -258,8 +258,6 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         flywheelMotor.configPeakCurrentLimit(30);
         
         flywheelMotor.setSensorPhase(false);
-
-        flywheelMotor.configAllowableClosedloopError(0, FLYWHEEL_CLOSED_LOOP_ERROR);
         
         flywheelMotor.config_kP(0, 0.1);
         flywheelMotor.config_kI(0, 0.0);

@@ -39,7 +39,7 @@ public class AimSubsystem extends SubsystemBase implements CustomSubsystem<AimSu
 
     // 0 - 5 "volts"
     public static final double hoodDownPosition = 4.9;
-    public static final double hoodHalfwayPosition = 3.5;
+    public static final double hoodHalfwayPosition = 4;
     public static final double hoodUpPosition = 2.85;
 
     private final double maxHoodSpeed = 0.5;

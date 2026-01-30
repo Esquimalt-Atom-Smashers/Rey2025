@@ -23,6 +23,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.ledlights.BlinkinSubsystem;
 import frc.robot.subsystems.shooter.AimSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.AimSubsystem.AimingSubsystemStates;
 
 public class RobotContainer{
   
@@ -48,6 +49,7 @@ public class RobotContainer{
     shooterSubsystem.initializeSubsystem();
     drivebaseSubsystem.initializeSubsystem();
     aimSubsystem.initializeSubsystem();
+    aimSubsystem.setTargetState(AimingSubsystemStates.AIMED);
 
     configureBindings();
   }
@@ -72,14 +74,16 @@ public class RobotContainer{
     driverController.povDown() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
 
     // Aiming panel
-    driverController.y().onTrue(new ToggleAimingHoodCommand(aimSubsystem));
+    driverController.y().onTrue(new InstantCommand(() -> {
+      aimSubsystem.setTargetPosition(AimSubsystem.hoodUpPosition);
+    }));
 
     driverController.b().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setTargetPosition(AimSubsystem.hoodDownPosition);
+      aimSubsystem.setTargetPosition(AimSubsystem.hoodHalfwayPosition);
     }));
 
     driverController.a().onTrue(new InstantCommand(() -> {
-      aimSubsystem.setTargetPosition(AimSubsystem.hoodUpPosition);
+      aimSubsystem.setTargetPosition(AimSubsystem.hoodDownPosition);
     }));
 
     // -- Drive Controls --

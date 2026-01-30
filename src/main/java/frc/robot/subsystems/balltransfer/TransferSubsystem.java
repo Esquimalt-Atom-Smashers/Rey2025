@@ -21,7 +21,7 @@ public class TransferSubsystem extends SubsystemBase implements CustomSubsystem<
         SHUFFLE
     }
 
-    private final double baseMotorSpeed = 0.2;
+    private final double baseMotorSpeed = 0.6;
     
     private final VictorSPX transferMotor = new VictorSPX(PhoenixIDConstants.BALL_TRANSFER);
     private final Timer telemetryTimer = new Timer();
