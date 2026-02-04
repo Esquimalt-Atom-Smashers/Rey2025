@@ -44,7 +44,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
     final double ENCODER_CPR = 4096;
     final double _100_MILLISECONDS_PER_MINUTE = 600;
 
-    private final double feedingPower = 0.2;
+    private final double feedingPower = 0.5;
 
     @Override
     public void periodic() {
