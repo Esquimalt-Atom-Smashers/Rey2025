@@ -35,17 +35,18 @@ public class RobotContainer{
   private BlinkinSubsystem ledSubsystem = new BlinkinSubsystem();
   private CPRotatorSubsystem cpRotatorSubsystem = new CPRotatorSubsystem();
   private final CommandXboxController xboxController = new CommandXboxController(0);
+  
   private DrivebaseSubsystemDos drivebaseSubsystemDos = new DrivebaseSubsystemDos(
     
-    () -> applyDeadzone( xboxController.getLeftX(), 0.2), 
-    () -> applyDeadzone( xboxController.getRightY(), 0.2));
+    () -> applyDeadzone( xboxController.getRightX(), 0.2), 
+    () -> applyDeadzone( xboxController.getLeftY(), 0.2));
 
   public RobotContainer() {
     //allows you to easily change the power
     //transferSubsystem.changeBallTransferPower(0.5);
     
     configureBindings();
-    
+    drivebaseSubsystemDos.initializeSubsystem();
     intakeSubsystem.initializeSubsystem();
   }
   

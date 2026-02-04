@@ -44,7 +44,7 @@ public class DrivebaseSubsystemDos extends SubsystemBase {
     
     }
     
-    public DrivebaseSubsystemDos(Supplier <Double> turnSupplier, Supplier <Double> driveSupplier) {
+    public DrivebaseSubsystemDos(Supplier <Double> driveSupplier,Supplier <Double> turnSupplier) {
        
         this.driveSupplier = driveSupplier;
         this.turnSupplier = turnSupplier;
@@ -134,8 +134,8 @@ public class DrivebaseSubsystemDos extends SubsystemBase {
         leftTalon.setInverted(true);
         leftDrive2.setInverted(true);
 
-        leftEncoder = new DutyCycleEncoder(0);
-        rightEncoder = new DutyCycleEncoder(1);
+        //leftEncoder = new DutyCycleEncoder(0);
+        //rightEncoder = new DutyCycleEncoder(1);
 
         leftDrive1.setNeutralMode(NeutralMode.Brake);
         leftTalon.setNeutralMode(NeutralMode.Brake);

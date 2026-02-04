@@ -56,7 +56,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     @Override
     public void periodic() {
-        targetFlywheelVelocity = -3000;
+        targetFlywheelVelocity = -10000;
         // This runs every 20ms. Use it to act on the current state.
         outputTelemetry(true);
         switch (currentState) {
@@ -210,7 +210,7 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
         shooterMotor.setNeutralMode(NeutralMode.Coast);
         shooterMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 30);
         
-        shooterMotor.enableCurrentLimit(true);
+        shooterMotor.enableCurrentLimit(false);
         shooterMotor.configPeakCurrentLimit(30);
 
         shooterMotor.config_kP(0, 0.1);
