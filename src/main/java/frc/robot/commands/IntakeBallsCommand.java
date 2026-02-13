@@ -8,16 +8,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
 import frc.robot.subsystems.balltransfer.TransferSubsystem.TransferSubsystemStates;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem.IntakeSubsystemStates;
 
 /** An example command that uses an example subsystem. */
 public class IntakeBallsCommand extends Command {
 
     IntakeSubsystem intakeSubsystem;
     TransferSubsystem transferSubsystem;
+    IntakeSubsystemStates intakeState;
+    TransferSubsystemStates transferState;
       
-    public IntakeBallsCommand(IntakeSubsystem intakeSubsystem, TransferSubsystem transferSubsystem) {
+    public IntakeBallsCommand(IntakeSubsystem intakeSubsystem, TransferSubsystem transferSubsystem, IntakeSubsystemStates intakeState, TransferSubsystemStates transferState) {
         this.intakeSubsystem = intakeSubsystem;
         this.transferSubsystem = transferSubsystem;
+        this.intakeState = intakeState;
+        this.transferState = transferState;
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(intakeSubsystem, transferSubsystem);
@@ -26,8 +31,8 @@ public class IntakeBallsCommand extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        intakeSubsystem.setTargetState(IntakeSubsystem.IntakeSubsystemStates.INTAKING);
-        transferSubsystem.setTargetState(TransferSubsystemStates.TRANSFER);;
+        intakeSubsystem.setTargetState(intakeState);
+        transferSubsystem.setTargetState(transferState);
     }
   
     // Called every time the scheduler runs while the command is scheduled.

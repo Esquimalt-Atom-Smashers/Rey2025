@@ -35,7 +35,8 @@ public class ShooterSubsystem extends SubsystemBase implements CustomSubsystem<S
 
     public final double FAST_FLYWHEEL_VELOCITY    = rpmToTalonUnits(14000);
     public final double DEFAULT_FLYWHEEL_VELOCITY = rpmToTalonUnits(10000);
-    public final double SLOW_FLYWHEEL_VELOCITY    = rpmToTalonUnits(7000);
+    public final double SLOW_FLYWHEEL_VELOCITY    = rpmToTalonUnits(8000);
+    public final double SLOWER_FLYWHEEL_VECLOTY   = rpmToTalonUnits(6000);
     private double targetFlywheelVelocity = DEFAULT_FLYWHEEL_VELOCITY;
 
     // Flywheel velocity setup

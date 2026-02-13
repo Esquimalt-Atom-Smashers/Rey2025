@@ -11,32 +11,36 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveSlowModeCommand;
 import frc.robot.commands.IdleSubsystemsCommand;
 import frc.robot.commands.IntakeBallsCommand;
-import frc.robot.commands.OuttakeBallsCommand;
 import frc.robot.commands.RunShooterFeederCommand;
 import frc.robot.commands.ShuffleBallsCommand;
 import frc.robot.commands.ToggleAimingHoodCommand;
 import frc.robot.commands.ToggleShooterChargingCommand;
 import frc.robot.subsystems.balltransfer.TransferSubsystem;
+import frc.robot.subsystems.balltransfer.TransferSubsystem.TransferSubsystemStates;
 import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem;
+import frc.robot.subsystems.controlpanelrotator.CPRotatorSubsystem.CPRotatorSubsystemStates;
 import frc.robot.subsystems.drivebase.DrivebaseSubsystem;
 import frc.robot.subsystems.hang.HangingSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem.IntakeSubsystemStates;
 import frc.robot.subsystems.ledlights.BlinkinSubsystem;
 import frc.robot.subsystems.shooter.AimSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.shooter.AimSubsystem.AimingSubsystemStates;
 
-public class RobotContainer{
+public class RobotContainer {
   
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController driverController =
+  private final CommandXboxController driverController1 =
       new CommandXboxController(0);
+  private final CommandXboxController driverController2 =
+      new CommandXboxController(1);
 
   private IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private TransferSubsystem transferSubsystem = new TransferSubsystem();
   private ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(() -> applyDeadzone(driverController.getLeftY()), 
-                                                                         () -> applyDeadzone(driverController.getRightX()));
+  private DrivebaseSubsystem drivebaseSubsystem = new DrivebaseSubsystem(() -> applyDeadzone(driverController1.getLeftY()), 
+                                                                         () -> applyDeadzone(driverController1.getLeftX()));
   private AimSubsystem aimSubsystem = new AimSubsystem();
   private HangingSubsystem hangingSubsystem = new HangingSubsystem();
   private BlinkinSubsystem ledSubsystem = new BlinkinSubsystem();
@@ -51,52 +55,52 @@ public class RobotContainer{
     drivebaseSubsystem.initializeSubsystem();
     aimSubsystem.initializeSubsystem();
     aimSubsystem.setTargetState(AimingSubsystemStates.AIMED);
+    cpRotatorSubsystem.initializeSubsystem();
 
     configureBindings();
   }
 
   private void configureBindings() {
+    //region Driver 1
+    driverController1.rightTrigger().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));
+
+    //region Driver 2
     //region Intake/Outtake
-    driverController.leftBumper().whileTrue(new OuttakeBallsCommand(intakeSubsystem, transferSubsystem));
-    driverController.leftTrigger().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem));
-    driverController.povLeft().whileTrue(new ShuffleBallsCommand(intakeSubsystem, transferSubsystem));
+    driverController2.leftBumper().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem, IntakeSubsystemStates.OUTTAKING, TransferSubsystemStates.EJECT));
+    driverController2.leftTrigger().whileTrue(new IntakeBallsCommand(intakeSubsystem, transferSubsystem, IntakeSubsystemStates.INTAKING, TransferSubsystemStates.TRANSFER));
+    driverController2.rightBumper().whileTrue(new ShuffleBallsCommand(intakeSubsystem, transferSubsystem));
     //endregion
 
     //region Shooting
-    // Run shooter feeder while holding
-    driverController.rightTrigger().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
+    driverController2.rightTrigger().whileTrue(new RunShooterFeederCommand(shooterSubsystem));
 
-    // Toggle between charging and idle
-    driverController.x().onTrue(new ToggleShooterChargingCommand(shooterSubsystem));
-    // driverController.x().onTrue(shooterSubsystem.setFlywheelPowerCommand(1));
-    // driverController.x().onFalse(shooterSubsystem.setFlywheelPowerCommand(0));
+    // Shooting Settings 
+    driverController2.y() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.FAST_FLYWHEEL_VELOCITY));
+    driverController2.b() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.DEFAULT_FLYWHEEL_VELOCITY));
+    driverController2.x() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
+    driverController2.a() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.SLOWER_FLYWHEEL_VECLOTY));
 
-    // Adjust velocity
-    driverController.povUp()   .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.FAST_FLYWHEEL_VELOCITY));
-    driverController.povRight().onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.DEFAULT_FLYWHEEL_VELOCITY));
-    driverController.povDown() .onTrue(shooterSubsystem.setTargetFlywheelVelocity(shooterSubsystem.SLOW_FLYWHEEL_VELOCITY));
-    //endregion
-
-    //region Aiming Panel
-    driverController.y().onTrue(new InstantCommand(() -> {
+    driverController2.povUp().onTrue(new InstantCommand(() -> {
       aimSubsystem.setTargetPosition(AimSubsystem.hoodUpPosition);
     }));
 
-    driverController.b().onTrue(new InstantCommand(() -> {
+    driverController2.povRight().onTrue(new InstantCommand(() -> {
       aimSubsystem.setTargetPosition(AimSubsystem.hoodHalfwayPosition);
     }));
 
-    driverController.a().onTrue(new InstantCommand(() -> {
+    driverController2.povDown().onTrue(new InstantCommand(() -> {
       aimSubsystem.setTargetPosition(AimSubsystem.hoodDownPosition);
+    }));
+
+    driverController2.povLeft().onTrue(new InstantCommand(() -> {
+       cpRotatorSubsystem.setVoltage(0.5);
     }));
     //endregion
 
-    //region Driving
-    driverController.rightBumper().whileTrue(new DriveSlowModeCommand(drivebaseSubsystem));
-    //endregion
-
     //region IDLE ALL SYSTEMS
-    driverController.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem, aimSubsystem));
+    driverController2.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem, aimSubsystem, cpRotatorSubsystem));
+    driverController1.start().onTrue(new IdleSubsystemsCommand(transferSubsystem, intakeSubsystem, shooterSubsystem, aimSubsystem, cpRotatorSubsystem));
+    //endregion
     //endregion
   }
 
